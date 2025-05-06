@@ -75,17 +75,38 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const user = result.user;
     const userRef = doc(db, 'users', user.uid);
     const userSnap = await getDoc(userRef);
+
+    let profilePictureUrl = user.photoURL || '/default-avatar.png';
+
+    // If Google provides a photoURL, download and upload to Firebase Storage
+    if (user.photoURL && (!userSnap.exists() || !userSnap.data().profilePicture || userSnap.data().profilePicture === user.photoURL)) {
+      try {
+        const response = await fetch(user.photoURL);
+        const blob = await response.blob();
+        const storageRef = ref(storage, `profile-pictures/${user.uid}`);
+        await uploadBytes(storageRef, blob);
+        profilePictureUrl = await getDownloadURL(storageRef);
+        // Update Auth profile as well
+        await updateProfile(user, { photoURL: profilePictureUrl });
+      } catch (err) {
+        profilePictureUrl = '/default-avatar.png';
+      }
+    } else if (userSnap.exists() && userSnap.data().profilePicture) {
+      profilePictureUrl = userSnap.data().profilePicture;
+    }
+
     if (!userSnap.exists()) {
       await setDoc(userRef, {
         email: user.email,
         username: user.displayName || '',
         createdAt: new Date().toISOString(),
         lastLogin: new Date().toISOString(),
-        profilePicture: user.photoURL || '/default-avatar.png',
+        profilePicture: profilePictureUrl,
       });
     } else {
       await setDoc(userRef, {
         lastLogin: new Date().toISOString(),
+        profilePicture: profilePictureUrl,
       }, { merge: true });
     }
   }

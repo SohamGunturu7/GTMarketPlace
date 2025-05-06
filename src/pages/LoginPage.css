@@ -69,6 +69,14 @@
   margin-bottom: 1.2rem;
   background: #f8f9fa;
   transition: border 0.2s, box-shadow 0.2s;
+  color: #222 !important;
+}
+
+.login-form input[type="email"]::placeholder,
+.login-form input[type="password"]::placeholder,
+.login-form input[type="text"]::placeholder {
+  color: #888 !important;
+  opacity: 1;
 }
 
 .login-form input:focus {
