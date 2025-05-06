@@ -1,0 +1,15 @@
+.callback-container {
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #B3A369 0%, #003057 100%);
+  color: white;
+}
+
+.callback-container h2 {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+} 
