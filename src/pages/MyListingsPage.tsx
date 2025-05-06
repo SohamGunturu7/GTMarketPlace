@@ -2,7 +2,7 @@ import './MyListingsPage.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 export default function MyListingsPage() {
@@ -52,7 +52,7 @@ export default function MyListingsPage() {
     }
     const buyerDoc = querySnapshot.docs[0];
     // Update the listing status
-    await updateDoc(doc(db, 'listings', selectedListing.id), { status: 'sold' });
+    await updateDoc(doc(db, 'listings', selectedListing.id), { status: 'sold', updatedAt: serverTimestamp() });
     // Add to buyer's purchaseHistory
     await updateDoc(doc(db, 'users', buyerDoc.id), {
       purchaseHistory: arrayUnion({
@@ -62,6 +62,7 @@ export default function MyListingsPage() {
         price: selectedListing.price,
         date: new Date().toISOString(),
         sellerId: selectedListing.userId,
+        sellerUsername: currentUser && currentUser.displayName ? currentUser.displayName : 'Seller',
       })
     });
     setShowSoldModal(false);

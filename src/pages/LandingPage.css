@@ -142,14 +142,17 @@
 
 .hero-content {
   position: relative;
-  z-index: 2;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
   max-width: 1200px;
-  width: 90%;
   margin: 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   text-align: center;
-  padding: 2rem;
-  transform-style: preserve-3d;
-  animation: contentFloat 6s ease-in-out infinite;
+  padding: 2.5rem 0 2.5rem 0;
 }
 
 .hero-headline {
@@ -161,9 +164,9 @@
   align-items: center;
   justify-content: center;
   gap: 1.5rem;
-  opacity: 0;
-  transform: translateY(30px) rotateX(-10deg);
-  animation: headlineReveal 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+  opacity: 1;
+  transform: none;
+  animation: none;
 }
 
 .welcome-text {
@@ -171,9 +174,9 @@
   font-weight: 600;
   color: #e2e8f0;
   text-shadow: 0 2px 15px rgba(0,0,0,0.2);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease-out 0.3s forwards;
+  opacity: 1;
+  transform: none;
+  animation: none;
   letter-spacing: -1px;
 }
 
@@ -182,27 +185,11 @@
   display: inline-block;
   transform-style: preserve-3d;
   font-size: 5.5rem;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease-out 0.6s forwards;
+  opacity: 1;
+  transform: none;
+  animation: none;
   letter-spacing: -1px;
-}
-
-.highlight::before {
-  content: 'GT Marketplace';
-  position: absolute;
-  left: 0;
-  top: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    #B3A369,
-    #e6c97a,
-    #fffbe6,
-    #e6c97a,
-    #B3A369
-  );
+  background: linear-gradient(90deg, #B3A369, #e6c97a, #fffbe6, #e6c97a, #B3A369);
   background-size: 200% auto;
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -220,28 +207,20 @@
 }
 
 .hero-tagline {
-  font-size: 1.5rem;
-  font-weight: 500;
-  line-height: 1.6;
-  margin-bottom: 3rem;
-  color: rgba(255, 255, 255, 0.9);
-  text-shadow: 0 2px 8px rgba(0,0,0,0.1);
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease-out 0.6s forwards;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  margin-bottom: 2.2rem;
+  text-align: center;
+  font-size: 1.45rem;
+  max-width: 600px;
 }
 
 .hero-buttons {
-  display: flex;
+  z-index: 2147483647 !important;
+  pointer-events: auto !important;
+  margin-bottom: 0;
   gap: 1.5rem;
+  display: flex;
+  flex-direction: row;
   justify-content: center;
-  margin-bottom: 2rem;
-  opacity: 0;
-  transform: translateY(20px);
-  animation: fadeInUp 1s ease-out 0.9s forwards;
 }
 
 .cta-button, .new-listing-button {
@@ -633,15 +612,22 @@
   margin-bottom: 1rem;
 }
 
-.footer-section a {
+.footer-link {
   display: block;
   color: #e2e8f0;
   text-decoration: none;
   margin-bottom: 0.5rem;
   transition: color 0.3s ease;
+  font-size: 1rem;
+  text-align: left;
+  cursor: pointer;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 0;
 }
 
-.footer-section a:hover {
+.footer-link:hover {
   color: #bfa14a;
 }
 
@@ -1306,4 +1292,19 @@
     text-align: center !important;
     margin-left: 0;
   }
+}
+
+/* Remove mascot and hero-with-mascot styles */
+/* (No-op: just delete .hero-with-mascot, .hero-text-block, .hero-mascot, .buzz-mascot, and @keyframes mascotFloat blocks) */
+
+/* Remove carousel styles */
+.featured-carousel-section, .featured-carousel-title, .carousel-scroll, .carousel-card, .carousel-image, .carousel-price, .carousel-details, .carousel-desc, .carousel-view-btn, .carousel-placeholder, .carousel-interactive-wrapper, .carousel-arrow {
+  display: none !important;
+  height: 0 !important;
+  width: 0 !important;
+  padding: 0 !important;
+  margin: 0 !important;
+  border: none !important;
+  box-shadow: none !important;
+  background: none !important;
 } 

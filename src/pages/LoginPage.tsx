@@ -8,7 +8,6 @@ import './LoginPage.css';
 function LoginPage() {
   const navigate = useNavigate();
   const { login, signup, loginWithGoogle, currentUser } = useAuth();
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
@@ -24,10 +23,6 @@ function LoginPage() {
       navigate('/landing');
     }
   }, [currentUser, navigate]);
-
-  const handleForgotPassword = () => {
-    setShowForgotPassword(true);
-  };
 
   const handleCreateAccount = () => {
     setShowCreateAccount(true);
@@ -45,7 +40,6 @@ function LoginPage() {
       setMessage('Password reset email sent! Please check your inbox.');
       setTimeout(() => {
         setMessage('');
-        setShowForgotPassword(false);
       }, 3000);
     } catch (error: any) {
       console.error('Password reset error:', error);
@@ -62,8 +56,6 @@ function LoginPage() {
   };
 
   const handleBackToLogin = () => {
-    setShowForgotPassword(false);
-    setShowCreateAccount(false);
     setError('');
   };
 
@@ -241,7 +233,7 @@ function LoginPage() {
           Login with Google
         </button>
         <div className="login-options">
-          <a href="#" className="login-link" onClick={handleForgotPassword}>Forgot Password?</a>
+          <a href="#" className="login-link" onClick={() => navigate('/reset-password')}>Forgot Password?</a>
           <a href="#" className="login-link" onClick={handleCreateAccount}>Create Account</a>
         </div>
       </div>

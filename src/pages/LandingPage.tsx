@@ -1,11 +1,12 @@
 import { useAuth } from '../contexts/AuthContext';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import './LandingPage.css';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { storage, db } from '../firebase/config';
-import { collection, query, where, onSnapshot } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, limit, doc, getDoc } from 'firebase/firestore';
+import RecentActivityFeed from './RecentActivityFeed';
 
 function LandingPage() {
   const { currentUser, logout } = useAuth();
@@ -20,6 +21,7 @@ function LandingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [notifCount, setNotifCount] = useState(0);
+  const [dashboardStats, setDashboardStats] = useState({ sold: 0, active: 0, bought: 0, loading: true });
 
   // Listen for unread messages
   useEffect(() => {
@@ -68,6 +70,31 @@ function LandingPage() {
       particlesContainer.innerHTML = '';
     };
   }, []);
+
+  useEffect(() => {
+    async function fetchDashboardStats() {
+      if (!currentUser) return;
+      setDashboardStats({ sold: 0, active: 0, bought: 0, loading: true });
+      // Fetch listings for this user
+      const q = query(collection(db, 'listings'), where('userId', '==', currentUser.uid));
+      const querySnapshot = await getDocs(q);
+      let sold = 0, active = 0;
+      querySnapshot.forEach(doc => {
+        const data = doc.data();
+        if (typeof data.status === 'string' && data.status.toLowerCase() === 'sold') sold++;
+        else active++;
+      });
+      // Fetch purchaseHistory
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      let bought = 0;
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        bought = Array.isArray(data.purchaseHistory) ? data.purchaseHistory.length : 0;
+      }
+      setDashboardStats({ sold, active, bought, loading: false });
+    }
+    if (currentUser) fetchDashboardStats();
+  }, [currentUser]);
 
   const handleLogout = async () => {
     try {
@@ -291,19 +318,50 @@ function LandingPage() {
         </section>
       </div>
 
+      {currentUser && (
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '2.5rem', justifyContent: 'center', alignItems: 'stretch', width: '100%', maxWidth: '1400px', margin: '0 auto 4rem auto', height: '520px' }}>
+          <div style={{ flex: 1, minWidth: 0, maxWidth: 520, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', height: '100%', background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0 }}>
+            <div style={{ height: '100%' }}>
+              <RecentActivityFeed />
+            </div>
+          </div>
+          <div style={{ flex: 1, minWidth: 0, maxWidth: 520, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', height: '100%', background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0 }}>
+            <section>
+              <h3 className="recent-activity-title" style={{ color: '#003057', fontSize: '2.2rem', fontWeight: 900, marginBottom: '2.2rem', letterSpacing: '-1px', marginTop: 0, textAlign: 'left', position: 'relative' }}>
+                Dashboard
+              </h3>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 2rem', width: '100%', marginBottom: '2rem', alignItems: 'stretch' }}>
+                <div style={{ gridColumn: '1', background: 'linear-gradient(135deg, #bfa14a 80%, #e6c97a 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(179,163,105,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(179,163,105,0.13)'}>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.sold}</div>
+                  <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Sold</div>
+                </div>
+                <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #4ade80 80%, #3ec6e0 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(76,220,128,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(76,220,128,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(76,220,128,0.13)'}>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.active}</div>
+                  <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Active Listings</div>
+                </div>
+                <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #3ec6e0 80%, #4ade80 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(62,198,224,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(62,198,224,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(62,198,224,0.13)'}>
+                  <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.bought}</div>
+                  <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Bought</div>
+                </div>
+              </div>
+            </section>
+          </div>
+        </div>
+      )}
+
       <footer className="footer">
         <div className="footer-content">
           <div className="footer-section">
             <h4>About</h4>
-            <a href="#">Our Story</a>
-            <a href="#">Safety Tips</a>
-            <a href="#">Terms of Service</a>
+            <Link to="/about" className="footer-link">Our Story</Link>
+            <Link to="/about" className="footer-link">Safety Tips</Link>
+            <Link to="/about" className="footer-link">Terms of Service</Link>
           </div>
           <div className="footer-section">
             <h4>Support</h4>
-            <a href="#">Help Center</a>
-            <a href="#">Contact Us</a>
-            <a href="#">Report an Issue</a>
+            <Link to="/support" className="footer-link">FAQ</Link>
+            <Link to="/support" className="footer-link">Contact Us</Link>
+            <Link to="/support" className="footer-link">Report an Issue</Link>
           </div>
           <div className="footer-section">
             <h4>Connect</h4>

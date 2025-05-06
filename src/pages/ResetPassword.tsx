@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { sendPasswordResetEmail } from 'firebase/auth';
 import { auth } from '../firebase/config';
-import './ResetPassword.css';
+import './LoginPage.css';
 
 function ResetPassword() {
   const navigate = useNavigate();
@@ -24,12 +24,12 @@ function ResetPassword() {
       setMessage('Password reset email sent! Please check your inbox.');
       setTimeout(() => {
         setMessage('');
-        navigate('/');
+        navigate('/login');
       }, 3000);
     } catch (error: any) {
       console.error('Password reset error:', error);
       if (error.code === 'auth/user-not-found') {
-        setError('No account found with this email address');
+        setError('No account found with that email address');
       } else if (error.code === 'auth/invalid-email') {
         setError('Please enter a valid email address');
       } else {
@@ -41,31 +41,32 @@ function ResetPassword() {
   };
 
   return (
-    <div className="reset-password-container">
-      <div className="reset-password-form">
-        <h2>Reset Password</h2>
-        <form onSubmit={handleResetPassword}>
+    <div className="login-background">
+      <div className="login-glass-card">
+        <div className="login-title gold-gradient-title">Reset Password</div>
+        <form className="login-form" onSubmit={handleResetPassword}>
           <input
             type="email"
             placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="reset-password-input"
+            className="login-input"
             required
           />
           {error && <p className="error-message">{error}</p>}
-          {message && <p className="success-message">{message}</p>}
+          {message && <p className="message">{message}</p>}
           <button
             type="submit"
-            className="reset-password-button"
+            className="login-button"
             disabled={loading}
           >
             {loading ? 'Sending...' : 'Reset Password'}
           </button>
         </form>
         <button
-          className="back-to-login-button"
-          onClick={() => navigate('/')}
+          className="login-button"
+          style={{ background: 'white', color: '#003057', border: '1px solid #003057', marginTop: 16 }}
+          onClick={() => navigate('/login')}
         >
           Back to Login
         </button>
