@@ -7,7 +7,7 @@ import './LoginPage.css';
 
 function LoginPage() {
   const navigate = useNavigate();
-  const { login, signup, currentUser } = useAuth();
+  const { login, signup, loginWithGoogle, currentUser } = useAuth();
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [showCreateAccount, setShowCreateAccount] = useState(false);
   const [username, setUsername] = useState('');
@@ -119,17 +119,18 @@ function LoginPage() {
     }
   };
 
-  const handleGoogleLogin = () => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-    const redirectUri = 'http://localhost:5173/callback';
-    
-    window.location.href = 'https://accounts.google.com/o/oauth2/v2/auth?' +
-      `client_id=${clientId}&` +
-      `redirect_uri=${redirectUri}&` +
-      'response_type=code&' +
-      'scope=email profile&' +
-      'access_type=offline&' +
-      'prompt=consent';
+  const handleGoogleLogin = async () => {
+    try {
+      await loginWithGoogle();
+      setMessage('Login successful! Redirecting...');
+      setTimeout(() => {
+        setMessage('');
+        navigate('/landing');
+      }, 1500);
+    } catch (error) {
+      setError('Google login failed. Please try again.');
+      console.error('Google login error:', error);
+    }
   };
 
   useEffect(() => {

@@ -232,6 +232,30 @@
   font-size: 1.18rem;
   color: #003057;
   margin-bottom: 0.1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+}
+.chat-unread-badge {
+  background: #ff3b30;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 700;
+  min-width: 20px;
+  height: 20px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 6px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.13);
+  border: 2px solid #fff;
+  animation: notif-pop 0.35s cubic-bezier(.4,0,.2,1);
+}
+@keyframes notif-pop {
+  0% { transform: scale(0.7); opacity: 0; }
+  60% { transform: scale(1.15); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
 }
 .chat-list-partner {
   font-size: 1.01rem;

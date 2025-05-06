@@ -5,7 +5,9 @@ import {
   signOut,
   onAuthStateChanged,
   User,
-  updateProfile
+  updateProfile,
+  GoogleAuthProvider,
+  signInWithPopup
 } from 'firebase/auth';
 import { doc, setDoc, getDoc } from 'firebase/firestore';
 import { auth, db } from '../firebase/config';
@@ -17,6 +19,7 @@ interface AuthContextType {
   signup: (email: string, password: string, username: string, file?: File) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
+  loginWithGoogle: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -66,6 +69,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     await signOut(auth);
   }
 
+  async function loginWithGoogle() {
+    const provider = new GoogleAuthProvider();
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+    const userRef = doc(db, 'users', user.uid);
+    const userSnap = await getDoc(userRef);
+    if (!userSnap.exists()) {
+      await setDoc(userRef, {
+        email: user.email,
+        username: user.displayName || '',
+        createdAt: new Date().toISOString(),
+        lastLogin: new Date().toISOString(),
+        profilePicture: user.photoURL || '/default-avatar.png',
+      });
+    } else {
+      await setDoc(userRef, {
+        lastLogin: new Date().toISOString(),
+      }, { merge: true });
+    }
+  }
+
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -88,6 +112,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     signup,
     login,
     logout,
+    loginWithGoogle,
   };
 
   return (

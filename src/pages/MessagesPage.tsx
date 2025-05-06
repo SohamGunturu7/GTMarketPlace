@@ -162,6 +162,10 @@ export default function MessagesPage() {
               {chatList.length === 0 && <div className="no-messages">No conversations yet.</div>}
               {chatList.map(chat => {
                 const userInfo = getOtherUserInfo(chat);
+                const unreadCount = chat.messages?.filter((msg: any) => 
+                  msg.from !== currentUser.uid && !msg.readBy?.includes(currentUser.uid)
+                ).length || 0;
+                
                 return (
                   <div
                     key={chat.id}
@@ -169,7 +173,12 @@ export default function MessagesPage() {
                     onClick={() => setActiveChat(chat)}
                   >
                     <div className="chat-list-info">
-                      <div className="chat-list-title">{chat.listingTitle || 'Chat'}</div>
+                      <div className="chat-list-title">
+                        {chat.listingTitle || 'Chat'}
+                        {unreadCount > 0 && (
+                          <span className="chat-unread-badge">{unreadCount}</span>
+                        )}
+                      </div>
                       <div className="chat-list-partner">{userInfo.username ? `with ${userInfo.username}` : 'with User'}</div>
                       <div className="chat-list-last">
                         {chat.messages && chat.messages.length > 0
