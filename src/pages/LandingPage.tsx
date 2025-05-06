@@ -43,16 +43,31 @@ function LandingPage() {
   }, [currentUser]);
 
   useEffect(() => {
-    if (!currentUser) {
-      navigate('/');
-    } else {
+    if (currentUser) {
       // Set initial values
       setEmail(currentUser.email || '');
-      // You would typically fetch the username from your database here
       setUsername(currentUser.displayName || 'User');
       setProfilePicture(currentUser.photoURL || './default-avatar.png');
     }
-  }, [currentUser, navigate]);
+  }, [currentUser]);
+
+  // Add this new useEffect for particles
+  useEffect(() => {
+    const particlesContainer = document.querySelector('.particles');
+    if (!particlesContainer) return;
+
+    // Create 9 particles
+    for (let i = 0; i < 9; i++) {
+      const particle = document.createElement('div');
+      particle.className = 'particle';
+      particlesContainer.appendChild(particle);
+    }
+
+    // Cleanup
+    return () => {
+      particlesContainer.innerHTML = '';
+    };
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -132,22 +147,26 @@ function LandingPage() {
           <h1 className="landing-title">GT Marketplace</h1>
         </div>
         <div className="landing-nav-right">
-          <div className="user-section" onClick={handleProfileClick} style={{ position: 'relative' }}>
-            <img src={profilePicture || './default-avatar.png'} alt="Profile" className="profile-pic" />
-            <span className="username">{username}</span>
-            {notifCount > 0 && (
-              <span className="notif-badge">{notifCount}</span>
-            )}
-            {showDropdown && (
-              <div className="profile-dropdown">
-                <button onClick={handleEditProfile}>Edit Profile</button>
-                <button onClick={handleMyListings}>My Listings</button>
-                <button onClick={handlePurchaseHistory}>Purchase History</button>
-                <button onClick={handleMessages}>Messages</button>
-                <button onClick={handleLogout}>Logout</button>
-              </div>
-            )}
-          </div>
+          {currentUser ? (
+            <div className="user-section" onClick={handleProfileClick} style={{ position: 'relative' }}>
+              <img src={profilePicture || './default-avatar.png'} alt="Profile" className="profile-pic" />
+              <span className="username">{username}</span>
+              {notifCount > 0 && (
+                <span className="notif-badge">{notifCount}</span>
+              )}
+              {showDropdown && (
+                <div className="profile-dropdown">
+                  <button onClick={handleEditProfile}>Edit Profile</button>
+                  <button onClick={handleMyListings}>My Listings</button>
+                  <button onClick={handlePurchaseHistory}>Purchase History</button>
+                  <button onClick={handleMessages}>Messages</button>
+                  <button onClick={handleLogout}>Logout</button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <button className="landing-nav-button" onClick={() => navigate('/login')}>Login</button>
+          )}
         </div>
       </nav>
       
@@ -215,80 +234,61 @@ function LandingPage() {
         </div>
       )}
 
-      {/* Animated Hero Section */}
-      <section className="hero-section awesome-hero-bg">
+      {/* Hero Section */}
+      <section className="awesome-hero-bg">
+        <div className="particles"></div>
         <div className="hero-content">
-          <h2 className="hero-headline">Welcome to <span className="highlight">GT Marketplace</span></h2>
+          <h2 className="hero-headline">
+            <span className="welcome-text">Welcome to</span>
+            <span className="highlight">GT Marketplace</span>
+          </h2>
           <p className="hero-tagline">The ultimate campus marketplace for Yellow Jackets. Buy, sell, and connect with your Georgia Tech community!</p>
           <div className="hero-buttons">
-            <button className="cta-button" onClick={() => navigate('/explore')}>Start Exploring</button>
-            <button className="new-listing-button" onClick={() => navigate('/new-listing')}>New Listing</button>
+            <button className="cta-button" onClick={() => currentUser ? navigate('/explore') : navigate('/login')}>Start Exploring</button>
+            <button className="new-listing-button" onClick={() => currentUser ? navigate('/new-listing') : navigate('/login')}>New Listing</button>
           </div>
         </div>
-        {/* SVG Wave or animated background can go here */}
-        <svg className="hero-wave" viewBox="0 0 1440 320"><path fill="#B3A369" fillOpacity="1" d="M0,224L48,197.3C96,171,192,117,288,117.3C384,117,480,171,576,197.3C672,224,768,224,864,197.3C960,171,1056,117,1152,128C1248,139,1344,213,1392,250.7L1440,288L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path></svg>
+        <svg className="hero-wave" viewBox="0 0 1440 320">
+          <path fill="#ffffff" fillOpacity="0.1" d="M0,192L48,197.3C96,203,192,213,288,229.3C384,245,480,267,576,250.7C672,235,768,181,864,181.3C960,181,1056,235,1152,234.7C1248,235,1344,181,1392,154.7L1440,128L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"></path>
+        </svg>
       </section>
 
-      <div className="categories-section">
-        <h3>Popular Categories</h3>
-        <div className="categories-grid">
-          <div className="category-card">
-            <i className="category-icon">📚</i>
-            <h4>Textbooks</h4>
-            <p>Find your course materials</p>
+      <div className="how-we-work-bg">
+        <section className="how-we-work-section">
+          <h3>How We Work</h3>
+          <div className="how-we-work-grid">
+            <div className="how-we-work-card">
+              <i className="how-we-work-icon">🔍</i>
+              <h4>Browse & Search</h4>
+              <p>Explore listings by keyword, tag, or location. Find exactly what you need on campus.</p>
+            </div>
+            <div className="how-we-work-card">
+              <i className="how-we-work-icon">➕</i>
+              <h4>Create & Manage Listings</h4>
+              <p>Post your own items, edit details, and mark as sold when you make a deal.</p>
+            </div>
+            <div className="how-we-work-card">
+              <i className="how-we-work-icon">💬</i>
+              <h4>Real-Time Chat</h4>
+              <p>Message other students instantly and securely to negotiate and arrange meetups.</p>
+            </div>
+            <div className="how-we-work-card">
+              <i className="how-we-work-icon">🔄</i>
+              <h4>Trades</h4>
+              <p>See what items people want to trade for, and DM them directly to negotiate a swap or deal.</p>
+            </div>
+            <div className="how-we-work-card">
+              <i className="how-we-work-icon">🛒</i>
+              <h4>Purchase History</h4>
+              <p>See everything you've bought in one place, with details and seller info.</p>
+            </div>
+            <div className="how-we-work-card">
+              <i className="how-we-work-icon">🎓</i>
+              <h4>GT-Only Community</h4>
+              <p>Buy, sell, and trade with confidence—only Georgia Tech students can join.</p>
+            </div>
           </div>
-          <div className="category-card">
-            <i className="category-icon">💻</i>
-            <h4>Electronics</h4>
-            <p>Tech and gadgets</p>
-          </div>
-          <div className="category-card">
-            <i className="category-icon">👕</i>
-            <h4>Clothing</h4>
-            <p>GT apparel and more</p>
-          </div>
-          <div className="category-card">
-            <i className="category-icon">🏠</i>
-            <h4>Housing</h4>
-            <p>Find your next home</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="how-we-work-section">
-        <h3>How We Work</h3>
-        <div className="how-we-work-grid">
-          <div className="how-we-work-card">
-            <i className="how-we-work-icon">🔍</i>
-            <h4>Browse & Search</h4>
-            <p>Explore listings by keyword, tag, or location. Find exactly what you need on campus.</p>
-          </div>
-          <div className="how-we-work-card">
-            <i className="how-we-work-icon">➕</i>
-            <h4>Create & Manage Listings</h4>
-            <p>Post your own items, edit details, and mark as sold when you make a deal.</p>
-          </div>
-          <div className="how-we-work-card">
-            <i className="how-we-work-icon">💬</i>
-            <h4>Real-Time Chat</h4>
-            <p>Message other students instantly and securely to negotiate and arrange meetups.</p>
-          </div>
-          <div className="how-we-work-card">
-            <i className="how-we-work-icon">🔄</i>
-            <h4>Trades</h4>
-            <p>See what items people want to trade for, and DM them directly to negotiate a swap or deal.</p>
-          </div>
-          <div className="how-we-work-card">
-            <i className="how-we-work-icon">🛒</i>
-            <h4>Purchase History</h4>
-            <p>See everything you've bought in one place, with details and seller info.</p>
-          </div>
-          <div className="how-we-work-card">
-            <i className="how-we-work-icon">🎓</i>
-            <h4>GT-Only Community</h4>
-            <p>Buy, sell, and trade with confidence—only Georgia Tech students can join.</p>
-          </div>
-        </div>
+        </section>
       </div>
 
       <footer className="footer">

@@ -14,14 +14,14 @@ function App() {
     <Router>
       <AuthProvider>
         <Routes>
-          <Route path="/" element={<LoginPage />} />
-          <Route path="/landing" element={<LandingPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
+          <Route path="/" element={<LandingPage />} />
+          <Route path="/login" element={<LoginPage />} />
           <Route path="/explore" element={<ExplorePage />} />
           <Route path="/my-listings" element={<ListingPage />} />
           <Route path="/new-listing" element={<NewListingPage />} />
           <Route path="/messages" element={<MessagesPage />} />
           <Route path="/purchase-history" element={<PurchasePage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </AuthProvider>
     </Router>
