@@ -2,7 +2,7 @@ import './MyListingsPage.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion, serverTimestamp } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 export default function MyListingsPage() {
@@ -74,6 +74,16 @@ export default function MyListingsPage() {
     setMyListings(listings => listings.map(l => l.id === selectedListing.id ? { ...l, status: 'sold' } : l));
   };
 
+  const handleDeleteListing = async (listingId: string) => {
+    if (!window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
+    try {
+      await deleteDoc(doc(db, 'listings', listingId));
+      setMyListings(prev => prev.filter(listing => listing.id !== listingId));
+    } catch (err) {
+      alert('Failed to delete listing. Please try again.');
+    }
+  };
+
   return (
     <div className="my-listings-page">
       <nav className="landing-nav glass-nav">
@@ -111,11 +121,22 @@ export default function MyListingsPage() {
                   <span>{listing.location}</span>
                   <span className="my-listing-date">{listing.date}</span>
                 </div>
-                {(!listing.status || (typeof listing.status === 'string' && listing.status.toLowerCase() === 'active')) && (
-                  <button className="mark-sold-btn" onClick={() => handleMarkAsSold(listing)}>
-                    Mark as Sold
+                <div style={{ display: 'flex', flexDirection: 'row', gap: '0.7rem', marginTop: '10px' }}>
+                  {(!listing.status || (typeof listing.status === 'string' && listing.status.toLowerCase() === 'active')) && (
+                    <button
+                      className="trade-btn"
+                      onClick={() => handleMarkAsSold(listing)}
+                    >
+                      Mark as Sold
+                    </button>
+                  )}
+                  <button
+                    className="trade-btn"
+                    onClick={() => handleDeleteListing(listing.id)}
+                  >
+                    Delete
                   </button>
-                )}
+                </div>
               </div>
             </div>
           ))

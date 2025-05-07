@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, getDoc, query, where } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, query, where, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import './ExplorePage.css';
 import { useAuth } from '../contexts/AuthContext';
@@ -132,6 +132,17 @@ export default function ExplorePage() {
     }
   };
 
+  // Add this function to handle deleting a listing
+  const handleDeleteListing = async (listingId: string) => {
+    if (!window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
+    try {
+      await deleteDoc(doc(db, 'listings', listingId));
+      setListings(prev => prev.filter(listing => listing.id !== listingId));
+    } catch (err) {
+      alert('Failed to delete listing. Please try again.');
+    }
+  };
+
   const filteredListings = listings.filter((listing) => {
     const matchesSearch =
       listing.title.toLowerCase().includes(search.toLowerCase()) ||
@@ -206,10 +217,19 @@ export default function ExplorePage() {
                   <h4>{listing.title}</h4>
                   <p className="explore-listing-desc">{listing.description}</p>
                   <div className="explore-tradefor-tags">
-                    <button className="trade-btn" onClick={() => handleTradeClick(listing.id)}>
+                    <button className="message-btn" onClick={() => handleTradeClick(listing.id)}>
                       Trade
                     </button>
                     <button className="message-btn" onClick={() => handleMessageClick(listing)}>Message</button>
+                    {currentUser && listing.userId === currentUser.uid && (
+                      <button
+                        className="message-btn"
+                        style={{ marginLeft: '10px' }}
+                        onClick={() => handleDeleteListing(listing.id)}
+                      >
+                        Delete
+                      </button>
+                    )}
                     {showTradeFor[listing.id] && (
                       <div
                         className="trade-dropdown"
