@@ -18,16 +18,14 @@ export default function SupportPage() {
         <div className="support-nav-left">
           <button className="back-button" onClick={() => navigate('/')}>{'<'} Back to Home</button>
         </div>
-        <div className="support-nav-center">
-          <h1 className="support-title">Support</h1>
-        </div>
-        <div className="support-nav-links">
-          <button onClick={() => scrollTo(faqRef)}>FAQ</button>
-          <button onClick={() => scrollTo(contactRef)}>Contact Us</button>
-          <button onClick={() => scrollTo(reportRef)}>Report an Issue</button>
+        <div className="support-nav-links button-row">
+          <button className="gold-button" onClick={() => scrollTo(faqRef)}>FAQ</button>
+          <button className="gold-button" onClick={() => scrollTo(contactRef)}>Contact Us</button>
+          <button className="gold-button" onClick={() => scrollTo(reportRef)}>Report an Issue</button>
         </div>
       </nav>
       <main className="support-main">
+        <h1 className="page-title">Support</h1>
         <section ref={faqRef} className="support-section">
           <h2>Frequently Asked Questions</h2>
           <div className="faq-list">

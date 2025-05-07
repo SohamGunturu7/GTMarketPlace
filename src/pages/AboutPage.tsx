@@ -18,16 +18,14 @@ export default function AboutPage() {
         <div className="about-nav-left">
           <button className="back-button" onClick={() => navigate('/')}>{'<'} Back to Home</button>
         </div>
-        <div className="about-nav-center">
-          <h1 className="about-title">About</h1>
-        </div>
-        <div className="about-nav-links">
-          <button onClick={() => scrollTo(storyRef)}>Our Story</button>
-          <button onClick={() => scrollTo(safetyRef)}>Safety Tips</button>
-          <button onClick={() => scrollTo(termsRef)}>Terms of Service</button>
+        <div className="about-nav-links button-row">
+          <button className="gold-button" onClick={() => scrollTo(storyRef)}>Our Story</button>
+          <button className="gold-button" onClick={() => scrollTo(safetyRef)}>Safety Tips</button>
+          <button className="gold-button" onClick={() => scrollTo(termsRef)}>Terms of Service</button>
         </div>
       </nav>
       <main className="about-main">
+        <h1 className="page-title">About</h1>
         <section ref={storyRef} className="about-section">
           <h2>Our Story</h2>
           <p>GT Marketplace was founded by Yellow Jackets, for Yellow Jackets. Our mission is to make campus trading safe, easy, and fun for everyone at Georgia Tech. Whether you're looking to buy, sell, or trade, you're in the right place!</p>

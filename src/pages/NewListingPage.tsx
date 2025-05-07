@@ -24,6 +24,8 @@ export default function NewListingPage() {
   const [success, setSuccess] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [tradeFor, setTradeFor] = useState('');
+  const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
+  const [suggestLoading, setSuggestLoading] = useState(false);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -39,6 +41,27 @@ export default function NewListingPage() {
     setSelectedTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
+  };
+
+  const fetchSuggestedPrice = async () => {
+    setSuggestLoading(true);
+    setSuggestedPrice(null);
+    try {
+      const response = await fetch('http://127.0.0.1:8000/suggest_price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          title,
+          description,
+          category: selectedTags[0] || 'Other',
+        }),
+      });
+      const data = await response.json();
+      setSuggestedPrice(data.suggested_price);
+    } catch (err) {
+      setSuggestedPrice(null);
+    }
+    setSuggestLoading(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -95,89 +118,105 @@ export default function NewListingPage() {
       </nav>
       <div className="new-listing-form-container wide">
         <h2>Create New Listing</h2>
-        <div className="listing-image-preview">
-          <img src={imageUrl || './techtower.jpeg'} alt="Preview" />
-        </div>
-        <form className="new-listing-form" onSubmit={handleSubmit}>
-          <div className="form-group">
-            <label htmlFor="title">Title</label>
-            <input
-              type="text"
-              id="title"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="price">Price ($)</label>
-            <input
-              type="number"
-              id="price"
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="location">Location</label>
-            <input
-              type="text"
-              id="location"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="description">Description</label>
-            <textarea
-              id="description"
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="image">Image</label>
-            <input
-              type="file"
-              id="image"
-              accept="image/*"
-              onChange={handleImageChange}
-            />
-          </div>
-          <div className="form-group">
-            <label>Tags</label>
-            <div className="tag-list">
-              {sampleTags.map((tag) => (
-                <button
-                  key={tag}
-                  type="button"
-                  className={`tag-btn${selectedTags.includes(tag) ? ' selected' : ''}`}
-                  onClick={() => handleTagClick(tag)}
-                >
-                  {tag}
-                </button>
-              ))}
+        <div className="new-listing-form-columns">
+          <div className="form-col">
+            <div className="section-header">Image & Tags</div>
+            <div className="section-card">
+              <div className="listing-image-preview">
+                <img src={imageUrl || './techtower.jpeg'} alt="Preview" />
+              </div>
+              <div className="form-group">
+                <label htmlFor="image">Image</label>
+                <input
+                  type="file"
+                  id="image"
+                  accept="image/*"
+                  onChange={handleImageChange}
+                />
+              </div>
+              <div className="form-group">
+                <label>Tags</label>
+                <div className="tag-list">
+                  {sampleTags.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`tag-btn${selectedTags.includes(tag) ? ' selected' : ''}`}
+                      onClick={() => handleTagClick(tag)}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group">
+                <label htmlFor="tradeFor">Items Willing to Trade For (comma separated)</label>
+                <input
+                  type="text"
+                  id="tradeFor"
+                  value={tradeFor}
+                  onChange={(e) => setTradeFor(e.target.value)}
+                  placeholder="Enter items you are willing to trade for"
+                />
+              </div>
             </div>
           </div>
-          <div className="form-group">
-            <label htmlFor="tradeFor">Items Willing to Trade For (Enter as a comma separated list)</label>
-            <input
-              type="text"
-              id="tradeFor"
-              value={tradeFor}
-              onChange={(e) => setTradeFor(e.target.value)}
-              placeholder="Enter items you are willing to trade for"
-            />
+          <div className="form-col">
+            <div className="section-header">Listing Details</div>
+            <div className="section-card">
+              <form className="new-listing-form" onSubmit={handleSubmit} autoComplete="off">
+                <div className="form-group">
+                  <label htmlFor="title">Title</label>
+                  <input
+                    type="text"
+                    id="title"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    required
+                    placeholder=" "
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="price">Price ($)</label>
+                  <input
+                    type="number"
+                    id="price"
+                    value={price}
+                    onChange={(e) => setPrice(e.target.value)}
+                    required
+                    placeholder=" "
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="location">Location</label>
+                  <input
+                    type="text"
+                    id="location"
+                    value={location}
+                    onChange={(e) => setLocation(e.target.value)}
+                    required
+                    placeholder=" "
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="description">Description</label>
+                  <textarea
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
+                    required
+                    placeholder=" "
+                  />
+                </div>
+                {error && <div className="form-error">{error}</div>}
+                {success && <div className="form-success">{success}</div>}
+                <button className="submit-listing-btn" type="submit" disabled={loading}>
+                  {loading ? 'Creating...' : 'Create Listing'}
+                </button>
+              </form>
+            </div>
           </div>
-          {error && <div className="form-error">{error}</div>}
-          {success && <div className="form-success">{success}</div>}
-          <button className="submit-listing-btn" type="submit" disabled={loading}>
-            {loading ? 'Creating...' : 'Create Listing'}
-          </button>
-        </form>
+        </div>
       </div>
     </div>
   );

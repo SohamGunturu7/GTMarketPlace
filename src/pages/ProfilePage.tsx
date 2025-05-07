@@ -212,6 +212,7 @@ function ProfilePage() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="Enter your email"
                 required
+                readOnly
               />
             </div>
             <button type="submit" className="save-button" disabled={isLoading}>
