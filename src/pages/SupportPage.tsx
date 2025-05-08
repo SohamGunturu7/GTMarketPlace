@@ -1,15 +1,43 @@
 import './SupportPage.css';
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../contexts/AuthContext';
 
 export default function SupportPage() {
   const faqRef = useRef<HTMLDivElement>(null);
   const contactRef = useRef<HTMLDivElement>(null);
   const reportRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
+  const { currentUser } = useAuth();
+
+  const [showReportBox, setShowReportBox] = useState(false);
+  const [reportText, setReportText] = useState('');
+  const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
   const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  };
+
+  const handleReportSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!reportText.trim()) return;
+    setReportStatus('sending');
+    try {
+      // Call the backend endpoint to send the report, including the current user's email
+      const response = await fetch('http://localhost:3000/api/report-issue', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ reportText, userEmail: currentUser?.email }),
+      });
+      if (!response.ok) throw new Error('Failed to send report');
+      setReportStatus('sent');
+      setReportText('');
+    } catch {
+      setReportStatus('error');
+    }
+    setTimeout(() => setReportStatus('idle'), 3000);
   };
 
   return (
@@ -59,7 +87,27 @@ export default function SupportPage() {
         <section ref={reportRef} className="support-section">
           <h2>Report an Issue</h2>
           <p>If you encounter a bug or inappropriate behavior, please let us know. We take your safety and experience seriously.</p>
-          <button className="report-btn">Report an Issue</button>
+          <button className="report-btn" onClick={() => setShowReportBox(v => !v)}>
+            {showReportBox ? 'Cancel' : 'Report an Issue'}
+          </button>
+          {showReportBox && (
+            <form className="report-issue-form" onSubmit={handleReportSubmit} style={{ marginTop: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1.1rem', maxWidth: 520 }}>
+              <textarea
+                className="report-issue-textarea"
+                value={reportText}
+                onChange={e => setReportText(e.target.value)}
+                placeholder="Describe the issue in detail..."
+                rows={5}
+                required
+                style={{ borderRadius: '1rem', padding: '1rem', fontSize: '1.1rem', border: '1.5px solid #e6c97a', resize: 'vertical', minHeight: 100 }}
+              />
+              <button className="report-btn" type="submit" disabled={reportStatus === 'sending' || !reportText.trim()} style={{ width: 'fit-content', alignSelf: 'flex-end', minWidth: 120 }}>
+                {reportStatus === 'sending' ? 'Sending...' : 'Submit'}
+              </button>
+              {reportStatus === 'sent' && <div style={{ color: '#4ade80', fontWeight: 700 }}>Thank you! Your issue has been reported.</div>}
+              {reportStatus === 'error' && <div style={{ color: '#f87171', fontWeight: 700 }}>Failed to send. Please try again.</div>}
+            </form>
+          )}
         </section>
       </main>
     </div>
