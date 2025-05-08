@@ -195,10 +195,15 @@ export default function MessagesPage() {
           <main className="chat-area">
             <div className="chat-header">
               <img
-                src={getOtherUserInfo(activeChat).profilePicture || './default-avatar.png'}
+                src={
+                  getOtherUserInfo(activeChat).profilePicture ||
+                  getOtherUserInfo(activeChat).photoURL ||
+                  './techtower.jpeg'
+                }
                 alt={getOtherUserInfo(activeChat).username || 'User'}
                 className="chat-list-avatar"
                 style={{ width: 44, height: 44, marginRight: 16 }}
+                onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
               />
               <div>
                 <div className="chat-listing">{activeChat.listingTitle || 'Chat'}</div>

@@ -477,25 +477,27 @@ function LandingPage() {
             </div>
           </div>
           <div style={{ flex: 1, minWidth: 0, maxWidth: 520, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', height: '100%', background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0 }}>
-            <section>
-              <h3 className="recent-activity-title" style={{ color: '#003057', fontSize: '2.2rem', fontWeight: 900, marginBottom: '2.2rem', letterSpacing: '-1px', marginTop: 0, textAlign: 'left', position: 'relative' }}>
-                Dashboard
-              </h3>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 2rem', width: '100%', marginBottom: '2rem', alignItems: 'stretch' }}>
-                <div style={{ gridColumn: '1', background: 'linear-gradient(135deg, #bfa14a 80%, #e6c97a 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(179,163,105,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(179,163,105,0.13)' }>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.sold}</div>
-                  <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Sold</div>
+            <div style={{ height: '100%', background: '#fffde7', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '2.2rem 1.2rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
+              <section>
+                <h3 className="recent-activity-title" style={{ color: '#003057', fontSize: '2.2rem', fontWeight: 900, marginBottom: '2.2rem', letterSpacing: '-1px', marginTop: 0, textAlign: 'left', position: 'relative' }}>
+                  Dashboard
+                </h3>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 2rem', width: '100%', marginBottom: '2rem', alignItems: 'stretch' }}>
+                  <div style={{ gridColumn: '1', background: 'linear-gradient(135deg, #bfa14a 80%, #e6c97a 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(179,163,105,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(179,163,105,0.13)' }>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.sold}</div>
+                    <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Sold</div>
+                  </div>
+                  <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #4ade80 80%, #3ec6e0 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(76,220,128,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(76,220,128,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(76,220,128,0.13)' }>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.active}</div>
+                    <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Active Listings</div>
+                  </div>
+                  <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #3ec6e0 80%, #4ade80 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(62,198,224,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(62,198,224,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(62,198,224,0.13)' }>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.bought}</div>
+                    <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Bought</div>
+                  </div>
                 </div>
-                <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #4ade80 80%, #3ec6e0 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(76,220,128,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(76,220,128,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(76,220,128,0.13)' }>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.active}</div>
-                  <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Active Listings</div>
-                </div>
-                <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #3ec6e0 80%, #4ade80 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(62,198,224,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(62,198,224,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(62,198,224,0.13)' }>
-                  <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.bought}</div>
-                  <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Bought</div>
-                </div>
-              </div>
-            </section>
+              </section>
+            </div>
           </div>
         </div>
       )}
