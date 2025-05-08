@@ -30,6 +30,7 @@ function LandingPage() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [notifCount, setNotifCount] = useState(0);
   const [dashboardStats, setDashboardStats] = useState({ sold: 0, active: 0, bought: 0, loading: true });
+  const [recommendedListings, setRecommendedListings] = useState<any[]>([]);
 
   // Listen for unread messages
   useEffect(() => {
@@ -114,6 +115,39 @@ function LandingPage() {
     }
     if (currentUser) fetchDashboardStats();
   }, [currentUser]);
+
+  // Fetch and score listings for recommendations
+  useEffect(() => {
+    async function fetchAndScoreListings() {
+      // Only run if user is logged in and has preferences
+      if (!currentUser || (interests.length === 0 && wantedItems.length === 0)) {
+        setRecommendedListings([]);
+        return;
+      }
+      // Fetch all active listings
+      const q = query(collection(db, 'listings'), where('status', 'in', ['Active', '', null]));
+      const querySnapshot = await getDocs(q);
+      const allListings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      // Score listings
+      const scored = allListings.map((listing: any) => {
+        let score = 0;
+        // Tag match
+        if (listing.tags && Array.isArray(listing.tags)) {
+          score += listing.tags.filter((tag: string) => interests.includes(tag)).length;
+        }
+        // Wanted item match (title/desc)
+        const text = ((listing.title || '') + ' ' + (listing.description || '')).toLowerCase();
+        wantedItems.forEach(item => {
+          if (text.includes(item.toLowerCase())) score += 2;
+        });
+        return { ...listing, _score: score };
+      });
+      // Sort and take top 6
+      const top = scored.filter(l => l._score > 0).sort((a, b) => b._score - a._score).slice(0, 6);
+      setRecommendedListings(top);
+    }
+    fetchAndScoreListings();
+  }, [currentUser, interests, wantedItems]);
 
   const handleLogout = async () => {
     try {
@@ -228,6 +262,11 @@ function LandingPage() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
+    e.currentTarget.src = './techtower.jpeg';
+    e.currentTarget.alt = 'Tech Tower';
   };
 
   return (
@@ -394,7 +433,7 @@ function LandingPage() {
 
       <div className="how-we-work-bg">
         <section className="how-we-work-section">
-          <h3>How We Work</h3>
+          <h3>Features and Benefits</h3>
           <div className="how-we-work-grid">
             <div className="how-we-work-card">
               <i className="how-we-work-icon">🔍</i>
@@ -423,8 +462,8 @@ function LandingPage() {
             </div>
             <div className="how-we-work-card">
               <i className="how-we-work-icon">🎓</i>
-              <h4>GT-Only Community</h4>
-              <p>Buy, sell, and trade with confidence—only Georgia Tech students can join.</p>
+              <h4>Recommended For You</h4>
+              <p>Get personalized recommendations based on your interests and preferences.</p>
             </div>
           </div>
         </section>
@@ -443,15 +482,15 @@ function LandingPage() {
                 Dashboard
               </h3>
               <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem 2rem', width: '100%', marginBottom: '2rem', alignItems: 'stretch' }}>
-                <div style={{ gridColumn: '1', background: 'linear-gradient(135deg, #bfa14a 80%, #e6c97a 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(179,163,105,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(179,163,105,0.13)'}>
+                <div style={{ gridColumn: '1', background: 'linear-gradient(135deg, #bfa14a 80%, #e6c97a 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(179,163,105,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(179,163,105,0.13)' }>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.sold}</div>
                   <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Sold</div>
                 </div>
-                <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #4ade80 80%, #3ec6e0 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(76,220,128,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(76,220,128,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(76,220,128,0.13)'}>
+                <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #4ade80 80%, #3ec6e0 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(76,220,128,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(76,220,128,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(76,220,128,0.13)' }>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.active}</div>
                   <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Active Listings</div>
                 </div>
-                <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #3ec6e0 80%, #4ade80 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(62,198,224,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(62,198,224,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(62,198,224,0.13)'}>
+                <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #3ec6e0 80%, #4ade80 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(62,198,224,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(62,198,224,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(62,198,224,0.13)' }>
                   <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.bought}</div>
                   <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Bought</div>
                 </div>
@@ -459,6 +498,37 @@ function LandingPage() {
             </section>
           </div>
         </div>
+      )}
+
+      {/* Recommended Listings Section */}
+      {recommendedListings.length > 0 && (
+        <section className="recommended-section">
+          <div className="recommended-box">
+            <h3 className="recommended-title">Recommended For You</h3>
+            <div className="recommended-grid">
+              {recommendedListings.map(listing => {
+                const imageUrl = listing.image && typeof listing.image === 'string' && listing.image.trim() !== '' ? listing.image : './techtower.jpeg';
+                return (
+                  <div className="recommended-card" key={listing.id}>
+                    <div className="recommended-image">
+                      <img src={imageUrl} alt={listing.title} onError={handleImgError} />
+                    </div>
+                    <div className="recommended-details">
+                      <h4>{listing.title}</h4>
+                      <div className="recommended-price">${listing.price}</div>
+                      <div className="recommended-tags">
+                        {listing.tags && listing.tags.map((tag: string) => (
+                          <span className="recommended-tag" key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                      <button className="recommended-view-btn" onClick={() => navigate(`/explore?listing=${listing.id}`)}>View</button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </section>
       )}
 
       <footer className="footer">
