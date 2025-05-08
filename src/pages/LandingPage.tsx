@@ -5,8 +5,12 @@ import './LandingPage.css';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { storage, db } from '../firebase/config';
-import { collection, query, where, onSnapshot, getDocs, limit, doc, getDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, limit, doc, getDoc, updateDoc } from 'firebase/firestore';
 import RecentActivityFeed from './RecentActivityFeed';
+
+const sampleTags = [
+  'Textbooks', 'Electronics', 'Clothing', 'Housing', 'Furniture', 'Tickets', 'Services', 'Appliances', 'Other'
+];
 
 function LandingPage() {
   const { currentUser, logout } = useAuth();
@@ -19,6 +23,10 @@ function LandingPage() {
   const [success, setSuccess] = useState<string | null>(null);
   const [profilePicture, setProfilePicture] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [wantedItems, setWantedItems] = useState<string[]>([]);
+  const [newInterest, setNewInterest] = useState('');
+  const [newWantedItem, setNewWantedItem] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [notifCount, setNotifCount] = useState(0);
   const [dashboardStats, setDashboardStats] = useState({ sold: 0, active: 0, bought: 0, loading: true });
@@ -50,6 +58,17 @@ function LandingPage() {
       setEmail(currentUser.email || '');
       setUsername(currentUser.displayName || 'User');
       setProfilePicture(currentUser.photoURL || './default-avatar.png');
+      
+      // Fetch user preferences
+      const fetchUserPreferences = async () => {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const data = userDoc.data();
+          setInterests(data.interests || []);
+          setWantedItems(data.wantedItems || []);
+        }
+      };
+      fetchUserPreferences();
     }
   }, [currentUser]);
 
@@ -129,15 +148,60 @@ function LandingPage() {
     navigate('/messages');
   };
 
+  const handleAddInterest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
+      setInterests([...interests, newInterest.trim()]);
+      setNewInterest('');
+    }
+  };
+
+  const handleRemoveInterest = (interestToRemove: string) => {
+    setInterests(interests.filter(interest => interest !== interestToRemove));
+  };
+
+  const handleAddWantedItem = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newWantedItem.trim() || wantedItems.includes(newWantedItem.trim()) || !currentUser) return;
+    const updated = [...wantedItems, newWantedItem.trim()];
+    setWantedItems(updated);
+    setNewWantedItem('');
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid), { wantedItems: updated });
+      setSuccess('Item added!');
+      setTimeout(() => setSuccess(null), 1500);
+    } catch (err) {
+      setError('Failed to add item.');
+      setTimeout(() => setError(null), 2000);
+    }
+  };
+
+  const handleRemoveWantedItem = async (itemToRemove: string) => {
+    if (!currentUser) return;
+    const updated = wantedItems.filter(item => item !== itemToRemove);
+    setWantedItems(updated);
+    try {
+      await updateDoc(doc(db, 'users', currentUser.uid), { wantedItems: updated });
+      setSuccess('Item removed!');
+      setTimeout(() => setSuccess(null), 1500);
+    } catch (err) {
+      setError('Failed to remove item.');
+      setTimeout(() => setError(null), 2000);
+    }
+  };
+
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!currentUser) return;
     try {
       setIsLoading(true);
       await updateProfile(currentUser, { displayName: username });
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        interests,
+        wantedItems
+      });
       setSuccess('Profile updated successfully!');
       setTimeout(() => setSuccess(null), 3000);
-      setShowEditProfile(false);
     } catch (error) {
       setError('Failed to update profile. Please try again.');
       setTimeout(() => setError(null), 3000);
@@ -244,9 +308,57 @@ function LandingPage() {
                   type="email"
                   id="email"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  disabled
                   required
                 />
+              </div>
+              <div className="form-group">
+                <label>Interests (Tags)</label>
+                <div className="tag-list">
+                  {sampleTags.map((tag) => (
+                    <button
+                      key={tag}
+                      type="button"
+                      className={`tag-btn${interests.includes(tag) ? ' selected' : ''}`}
+                      onClick={() => {
+                        setInterests((prev) =>
+                          prev.includes(tag)
+                            ? prev.filter((t) => t !== tag)
+                            : [...prev, tag]
+                        );
+                      }}
+                    >
+                      {tag}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <div className="form-group">
+                <label>Items I'm Looking For</label>
+                <div className="tags-container">
+                  {wantedItems.map((item, index) => (
+                    <div key={index} className="tag">
+                      {item}
+                      <button
+                        type="button"
+                        className="remove-tag"
+                        onClick={() => handleRemoveWantedItem(item)}
+                      >
+                        ×
+                      </button>
+                    </div>
+                  ))}
+                </div>
+                <div className="add-tag-form">
+                  <input
+                    type="text"
+                    value={newWantedItem}
+                    onChange={(e) => setNewWantedItem(e.target.value)}
+                    placeholder="Add an item you're looking for"
+                    onKeyDown={e => { if (e.key === 'Enter') { handleAddWantedItem(e); } }}
+                  />
+                  <button type="button" className="add-tag-button" onClick={handleAddWantedItem}>Add</button>
+                </div>
               </div>
               {error && <p className="error-message">{error}</p>}
               {success && <p className="success-message">{success}</p>}

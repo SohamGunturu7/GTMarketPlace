@@ -41,6 +41,10 @@ function ProfilePage() {
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [interests, setInterests] = useState<string[]>([]);
+  const [wantedItems, setWantedItems] = useState<string[]>([]);
+  const [newInterest, setNewInterest] = useState('');
+  const [newWantedItem, setNewWantedItem] = useState('');
 
   const defaultProfilePicture = useDefaultProfilePicture();
 
@@ -57,6 +61,8 @@ function ProfilePage() {
         const data = userDoc.data();
         setUsername(data.username || currentUser.displayName || '');
         setProfilePicture(data.profilePicture || currentUser.photoURL || null);
+        setInterests(data.interests || []);
+        setWantedItems(data.wantedItems || []);
       } else {
         setUsername(currentUser.displayName || '');
         setProfilePicture(currentUser.photoURL || null);
@@ -152,6 +158,50 @@ function ProfilePage() {
     }
   };
 
+  const handleAddInterest = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
+      setInterests([...interests, newInterest.trim()]);
+      setNewInterest('');
+    }
+  };
+
+  const handleRemoveInterest = (interestToRemove: string) => {
+    setInterests(interests.filter(interest => interest !== interestToRemove));
+  };
+
+  const handleAddWantedItem = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (newWantedItem.trim() && !wantedItems.includes(newWantedItem.trim())) {
+      setWantedItems([...wantedItems, newWantedItem.trim()]);
+      setNewWantedItem('');
+    }
+  };
+
+  const handleRemoveWantedItem = (itemToRemove: string) => {
+    setWantedItems(wantedItems.filter(item => item !== itemToRemove));
+  };
+
+  const handleSavePreferences = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!currentUser) return;
+
+    try {
+      setIsLoading(true);
+      await updateDoc(doc(db, 'users', currentUser.uid), {
+        interests,
+        wantedItems
+      });
+      setMessage('Preferences updated successfully!');
+      setTimeout(() => setMessage(''), 3000);
+    } catch (error) {
+      setError('Failed to update preferences. Please try again.');
+      setTimeout(() => setError(''), 3000);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="profile-page">
       <div className="profile-header">
@@ -196,9 +246,6 @@ function ProfilePage() {
                 required
               />
             </div>
-            <button type="submit" className="save-button" disabled={isLoading}>
-              Update Username
-            </button>
           </form>
         </div>
 
@@ -209,15 +256,11 @@ function ProfilePage() {
               <input
                 type="email"
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                disabled
                 placeholder="Enter your email"
                 required
-                readOnly
               />
             </div>
-            <button type="submit" className="save-button" disabled={isLoading}>
-              Update Email
-            </button>
           </form>
         </div>
 
@@ -253,6 +296,69 @@ function ProfilePage() {
             </div>
             <button type="submit" className="save-button" disabled={isLoading}>
               Update Password
+            </button>
+          </form>
+        </div>
+
+        <div className="profile-section">
+          <h2>Interests & Preferences</h2>
+          <form onSubmit={handleSavePreferences}>
+            <div className="form-group">
+              <label>Interests (Tags)</label>
+              <div className="tags-container">
+                {interests.map((interest, index) => (
+                  <div key={index} className="tag">
+                    {interest}
+                    <button
+                      type="button"
+                      className="remove-tag"
+                      onClick={() => handleRemoveInterest(interest)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <form onSubmit={handleAddInterest} className="add-tag-form">
+                <input
+                  type="text"
+                  value={newInterest}
+                  onChange={(e) => setNewInterest(e.target.value)}
+                  placeholder="Add an interest"
+                />
+                <button type="submit" className="add-tag-button">Add</button>
+              </form>
+            </div>
+
+            <div className="form-group">
+              <label>Items I'm Looking For</label>
+              <div className="tags-container">
+                {wantedItems.map((item, index) => (
+                  <div key={index} className="tag">
+                    {item}
+                    <button
+                      type="button"
+                      className="remove-tag"
+                      onClick={() => handleRemoveWantedItem(item)}
+                    >
+                      ×
+                    </button>
+                  </div>
+                ))}
+              </div>
+              <form onSubmit={handleAddWantedItem} className="add-tag-form">
+                <input
+                  type="text"
+                  value={newWantedItem}
+                  onChange={(e) => setNewWantedItem(e.target.value)}
+                  placeholder="Add an item you're looking for"
+                />
+                <button type="submit" className="add-tag-button">Add</button>
+              </form>
+            </div>
+
+            <button type="submit" className="save-button" disabled={isLoading}>
+              Save Preferences
             </button>
           </form>
         </div>

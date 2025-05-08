@@ -287,4 +287,44 @@
     padding: 1.2rem 0.5rem 1rem 0.5rem;
     min-width: 90vw;
   }
+}
+
+.trade-btn,
+.delete-btn {
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  line-height: 1.1;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.7rem 2.2rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+  transition: background 0.2s, color 0.2s, transform 0.2s, box-shadow 0.2s;
+  display: inline-block;
+  color: #003057;
+  box-sizing: border-box;
+  outline: none;
+}
+
+.trade-btn {
+  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
+}
+
+.trade-btn:hover {
+  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
+  color: #fff;
+  transform: scale(1.07);
+  box-shadow: 0 4px 16px rgba(62,198,224,0.13);
+}
+
+.delete-btn {
+  background: linear-gradient(90deg, #f87171 0%, #fbbf24 100%);
+}
+
+.delete-btn:hover {
+  background: linear-gradient(90deg, #f87171 0%, #fbbf24 80%, #f87171 100%);
+  color: #fff;
+  transform: scale(1.07);
+  box-shadow: 0 4px 16px rgba(248,113,113,0.13);
 } 

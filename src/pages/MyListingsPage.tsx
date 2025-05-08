@@ -124,14 +124,14 @@ export default function MyListingsPage() {
                 <div style={{ display: 'flex', flexDirection: 'row', gap: '0.7rem', marginTop: '10px' }}>
                   {(!listing.status || (typeof listing.status === 'string' && listing.status.toLowerCase() === 'active')) && (
                     <button
-                      className="trade-btn"
+                      className="delete-btn"
                       onClick={() => handleMarkAsSold(listing)}
                     >
                       Mark as Sold
                     </button>
                   )}
                   <button
-                    className="trade-btn"
+                    className="delete-btn"
                     onClick={() => handleDeleteListing(listing.id)}
                   >
                     Delete
