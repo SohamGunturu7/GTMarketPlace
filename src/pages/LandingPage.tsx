@@ -31,6 +31,7 @@ function LandingPage() {
   const [notifCount, setNotifCount] = useState(0);
   const [dashboardStats, setDashboardStats] = useState({ sold: 0, active: 0, bought: 0, loading: true });
   const [recommendedListings, setRecommendedListings] = useState<any[]>([]);
+  const [dropdownClosing, setDropdownClosing] = useState(false);
 
   // Listen for unread messages
   useEffect(() => {
@@ -141,7 +142,15 @@ function LandingPage() {
   };
 
   const handleProfileClick = () => {
-    setShowDropdown(!showDropdown);
+    if (showDropdown) {
+      setDropdownClosing(true);
+      setTimeout(() => {
+        setShowDropdown(false);
+        setDropdownClosing(false);
+      }, 320); // match CSS animation duration
+    } else {
+      setShowDropdown(true);
+    }
   };
 
   const handleEditProfile = () => {
@@ -255,7 +264,7 @@ function LandingPage() {
     <div className="landing-container">
       <nav className="landing-nav glass-nav">
         <div className="landing-nav-left">
-          <img src="./gt.png" alt="GT Logo" className="gt-logo" />
+          <img src="./logo.png" alt="GT Logo" className="gt-logo" />
           <h1 className="landing-title">GT Marketplace</h1>
         </div>
         <div className="landing-nav-right">
@@ -266,8 +275,8 @@ function LandingPage() {
               {notifCount > 0 && (
                 <span className="notif-badge">{notifCount}</span>
               )}
-              {showDropdown && (
-                <div className="profile-dropdown">
+              {(showDropdown || dropdownClosing) && (
+                <div className={`profile-dropdown${dropdownClosing ? ' closing' : ''}`}>
                   <button onClick={handleEditProfile}>Edit Profile</button>
                   <button onClick={handleMyListings}>My Listings</button>
                   <button onClick={handlePurchaseHistory}>Purchase History</button>

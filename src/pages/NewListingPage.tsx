@@ -109,7 +109,7 @@ export default function NewListingPage() {
     <div className="new-listing-page">
       <nav className="landing-nav glass-nav">
         <div className="landing-nav-left">
-          <img src="./gt.png" alt="GT Logo" className="gt-logo" />
+          <img src="./logo.png" alt="GT Logo" className="gt-logo" />
           <h1 className="landing-title">GT Marketplace</h1>
         </div>
         <div className="landing-nav-right">

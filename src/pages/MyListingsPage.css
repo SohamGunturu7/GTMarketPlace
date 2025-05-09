@@ -28,8 +28,8 @@
   letter-spacing: -1px;
 }
 .my-new-listing-btn {
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #bfa14a;
   font-weight: 700;
   font-size: 1.1rem;
   padding: 0.9rem 2.2rem;
@@ -37,14 +37,15 @@
   border-radius: 9999px;
   box-shadow: 0 4px 16px rgba(0,0,0,0.10);
   cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s, color 0.2s;
   outline: none;
   display: inline-block;
 }
 .my-new-listing-btn:hover {
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
+  background: linear-gradient(90deg, #bfa14a 0%, #e6c97a 100%);
+  color: #232a34;
   transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+  box-shadow: 0 8px 32px rgba(191,161,74,0.18);
 }
 
 .my-listings-grid {

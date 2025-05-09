@@ -882,32 +882,45 @@
   position: absolute;
   top: 100%;
   right: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  padding: 0.5rem;
-  min-width: 200px;
+  background: rgba(35, 42, 52, 0.85);
+  border-radius: 1.2rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.18);
+  backdrop-filter: blur(12px);
+  padding: 0.7rem 0.3rem;
+  min-width: 230px;
   z-index: 1000;
+  border: 1.5px solid rgba(191,161,74,0.13);
+  transition: box-shadow 0.18s, border 0.18s;
+  animation: dropdownRoll 0.38s cubic-bezier(.4,0,.2,1);
+  transform-origin: top right;
 }
-
 .profile-dropdown button {
-  display: block;
+  display: flex;
+  align-items: center;
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 1.05rem 1.3rem 1.05rem 1.1rem;
   border: none;
   background: none;
-  color: #00214d;
+  color: #fffbe6;
   text-align: left;
   cursor: pointer;
-  transition: background-color 0.3s ease;
+  font-size: 1.09rem;
+  font-weight: 700;
+  border-radius: 0.9rem;
+  margin-bottom: 0.1rem;
+  box-shadow: none;
+  position: relative;
+  transition: background 0.18s, color 0.18s, box-shadow 0.18s, border-left 0.18s;
 }
-
-.profile-dropdown button:hover {
-  background-color: #f8f9fa;
+.profile-dropdown button:hover, .profile-dropdown button:focus {
+  background: rgba(191,161,74,0.13);
+  color: #bfa14a;
+  border-left: 4px solid #bfa14a;
+  box-shadow: 0 2px 12px rgba(191,161,74,0.10);
+  outline: none;
 }
-
 .profile-dropdown button:not(:last-child) {
-  border-bottom: 1px solid #e2e8f0;
+  border-bottom: 1px solid rgba(255,255,255,0.07);
 }
 
 /* Edit Profile Modal */
@@ -1748,4 +1761,37 @@
   0% { transform: scale(0.7); opacity: 0; }
   60% { transform: scale(1.15); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+@keyframes dropdownRoll {
+  0% {
+    opacity: 0;
+    transform: translateY(-18px) scaleY(0.85) rotateX(18deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scaleY(1.04) rotateX(-2deg);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1) rotateX(0deg);
+  }
+}
+
+@keyframes dropdownRollOut {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scaleY(1) rotateX(0deg);
+  }
+  60% {
+    opacity: 1;
+    transform: translateY(4px) scaleY(1.04) rotateX(-2deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-18px) scaleY(0.85) rotateX(18deg);
+  }
+}
+.profile-dropdown.closing {
+  animation: dropdownRollOut 0.32s cubic-bezier(.4,0,.2,1) forwards;
 } 
