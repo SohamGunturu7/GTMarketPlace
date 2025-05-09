@@ -104,29 +104,30 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(90deg, #f8fafc 0%, #e6e6e6 100%);
-  color: #003057;
-  border: 1.5px solid #e6e6e6;
+  background: #232a34;
+  color: #bfa14a;
+  border: none;
   border-radius: 2em;
   padding: 0.7em 1.7em;
   font-weight: 700;
-  font-size: 1.08rem;
+  font-size: 1.13rem;
   cursor: pointer;
   transition: background 0.18s, color 0.18s, box-shadow 0.18s, border 0.18s, transform 0.13s;
   box-shadow: 0 2px 12px rgba(0,48,87,0.07);
   outline: none;
   min-width: 120px;
+  height: 2.7em;
 }
 .tag-btn .tag-icon {
-  margin-right: 0.8em;
-  min-width: 1.7em;
+  margin-right: 0.18em;
+  min-width: 1.1em;
+  font-size: 1.13em;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5em;
-  color: #3ec6e0;
+  color: #bfa14a;
   opacity: 1;
-  filter: drop-shadow(0 1px 2px #b3e5fc);
+  filter: none;
 }
 .tag-btn .tag-label {
   font-weight: 700;
@@ -134,16 +135,12 @@
 }
 .tag-btn.selected,
 .tag-btn:hover {
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
-  color: #fff;
-  border: 1.5px solid #3ec6e0;
-  transform: translateY(-2px) scale(1.06);
-  box-shadow: 0 4px 16px rgba(62,198,224,0.13);
+  background: linear-gradient(90deg, #bfa14a 0%, #e6c97a 100%);
+  color: #232a34;
 }
 .tag-btn.selected .tag-icon,
 .tag-btn:hover .tag-icon {
-  color: #fff;
-  filter: none;
+  color: #232a34;
 }
 
 /* --- Main Content --- */
@@ -378,8 +375,8 @@
   align-items: center;
 }
 .trade-btn {
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #bfa14a 0%, #e6c97a 100%);
+  color: #232a34;
   font-weight: 700;
   font-size: 1.05rem;
   border: none;
@@ -395,10 +392,10 @@
   margin-right: 7px;
 }
 .trade-btn:hover {
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #e6c97a 0%, #bfa14a 100%);
+  color: #232a34;
   transform: scale(1.07);
-  box-shadow: 0 4px 16px rgba(0,48,87,0.13);
+  box-shadow: 0 4px 16px rgba(191,161,74,0.13);
 }
 .message-btn {
   background: linear-gradient(90deg, #003057 0%, #B3A369 100%);
@@ -508,8 +505,8 @@
 }
 
 .explore-tradefor-tag {
-  background: linear-gradient(90deg, #2ecc71 0%, #27ae60 100%);
-  color: white;
+  background: linear-gradient(90deg, #bfa14a 0%, #e6c97a 100%);
+  color: #232a34;
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 0.9rem;
@@ -519,7 +516,7 @@
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transform: scale(0.95);
-  transition: transform 0.2s ease-out;
+  transition: transform 0.2s ease-out, background 0.2s, color 0.2s;
 }
 
 .explore-tradefor-tag-container.show .explore-tradefor-tag {
@@ -528,8 +525,9 @@
 
 .explore-tradefor-tag:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 8px rgba(46, 204, 113, 0.2);
-  background: linear-gradient(90deg, #27ae60 0%, #2ecc71 100%);
+  box-shadow: 0 4px 8px rgba(191,161,74,0.18);
+  background: linear-gradient(90deg, #e6c97a 0%, #bfa14a 100%);
+  color: #232a34;
 }
 
 .trade-dropdown {

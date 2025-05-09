@@ -179,9 +179,8 @@ export default function ExplorePage() {
               key={tag}
               className={`tag-btn${selectedTags.includes(tag) ? ' selected' : ''}`}
               onClick={() => handleTagClick(tag)}
-              style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}
             >
-              <span className="tag-icon" style={{ marginRight: '0.7em', minWidth: '1.5em', display: 'inline-flex', alignItems: 'center', justifyContent: 'center' }}>{tagIcons[tag]}</span>
+              <span className="tag-icon">{tagIcons[tag]}</span>
               <span className="tag-label">{tag}</span>
             </button>
           ))}
