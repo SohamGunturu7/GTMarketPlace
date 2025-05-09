@@ -159,7 +159,7 @@
 }
 .conversation-listing {
   font-size: 0.95rem;
-  color: #4ade80;
+  color: #003057;
 }
 .conversation-last {
   font-size: 0.9rem;
@@ -207,11 +207,11 @@
   margin-bottom: 0.5rem;
 }
 .chat-list-item:hover, .chat-list-item.active {
-  background: linear-gradient(90deg, #4ade80 0%, #B3A369 100%);
+  background: linear-gradient(90deg, #B3A369 0%, #003057 100%);
   color: #003057;
   box-shadow: 0 12px 32px rgba(0,48,87,0.16);
   transform: translateY(-2px) scale(1.035);
-  border-color: #4ade80;
+  border-color: #003057;
 }
 .chat-list-avatar {
   width: 62px;
@@ -259,7 +259,7 @@
 }
 .chat-list-partner {
   font-size: 1.01rem;
-  color: #4ade80;
+  color: #003057;
   font-weight: 600;
   margin-bottom: 0.1rem;
 }
@@ -324,8 +324,8 @@
   animation: fadeInBubble 0.35s cubic-bezier(.4,0,.2,1);
 }
 .chat-bubble.from-me {
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #004080 0%, #003057 100%);
+  color: white;
   align-self: flex-end;
   border-radius: 1.2rem 1.2rem 0.4rem 1.2rem;
 }
@@ -363,13 +363,13 @@
   letter-spacing: 0.2px;
 }
 .chat-input-bar input[type="text"]:focus {
-  border: 1.5px solid #4ade80;
+  border: 1.5px solid #003057;
   outline: none;
-  box-shadow: 0 2px 8px rgba(16,185,129,0.10);
+  box-shadow: 0 2px 8px rgba(0,48,87,0.10);
 }
 .send-btn {
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #004080 0%, #003057 100%);
+  color: white;
   font-weight: 700;
   font-size: 1.05rem;
   border: none;
@@ -384,8 +384,8 @@
   align-items: center;
 }
 .send-btn:hover {
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #003057 0%, #004080 100%);
+  color: white;
   transform: scale(1.07);
   box-shadow: 0 4px 16px rgba(0,48,87,0.13);
 }
@@ -483,11 +483,11 @@
   min-width: 0;
 }
 .chat-grid-item:hover, .chat-grid-item.active {
-  background: linear-gradient(90deg, #4ade80 0%, #B3A369 100%);
+  background: linear-gradient(90deg, #B3A369 0%, #003057 100%);
   color: #003057;
   box-shadow: 0 12px 32px rgba(0,48,87,0.16);
   transform: translateY(-2px) scale(1.035);
-  border-color: #4ade80;
+  border-color: #003057;
 }
 @media (max-width: 900px) {
   .chat-grid {
