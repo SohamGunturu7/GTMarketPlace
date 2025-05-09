@@ -1373,31 +1373,16 @@
   box-shadow: 0 2px 8px rgba(179,163,105,0.10);
 }
 .how-we-work-card h4 {
-  font-size: 1.25rem;
-  font-weight: 800;
+  font-size: 1.7rem;
+  font-weight: 900;
   margin-bottom: 0.7rem;
   color: #fff;
   letter-spacing: -0.5px;
 }
-.how-we-work-card p {
-  color: #e2e8f0;
-  font-size: 1.05rem;
-  line-height: 1.6;
-  margin: 0;
-}
 @media (max-width: 900px) {
-  .how-we-work-grid {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
-    max-width: 99vw;
-  }
   .how-we-work-card {
     min-height: 180px;
     padding: 2rem 1.2rem 1.5rem 1.2rem;
-  }
-  .how-we-work-section h3 {
-    text-align: center !important;
-    margin-left: 0;
   }
 }
 
@@ -1794,4 +1779,17 @@
 }
 .profile-dropdown.closing {
   animation: dropdownRollOut 0.32s cubic-bezier(.4,0,.2,1) forwards;
+}
+
+.dynamic-feature-card {
+  opacity: 0;
+  transform: translateY(30px) scale(0.97);
+  transition: opacity 0.35s, transform 0.35s;
+}
+.dynamic-feature-card.visible {
+  animation: dynamicFeatureFadeIn 0.35s cubic-bezier(.4,0,.2,1) forwards;
+}
+@keyframes dynamicFeatureFadeIn {
+  from { opacity: 0; transform: translateY(30px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 } 

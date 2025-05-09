@@ -12,6 +12,38 @@ const sampleTags = [
   'Textbooks', 'Electronics', 'Clothing', 'Housing', 'Furniture', 'Tickets', 'Services', 'Appliances', 'Other'
 ];
 
+// Helper for dynamic tilt effect
+function useCardTilt() {
+  const ref = useRef<HTMLDivElement>(null);
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const card = ref.current;
+    if (!card) return;
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const centerX = rect.width / 2;
+    const centerY = rect.height / 2;
+    const rotateX = ((y - centerY) / centerY) * 7;
+    const rotateY = ((x - centerX) / centerX) * -7;
+    card.style.transform = `perspective(700px) rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(1.035)`;
+  };
+  const handleMouseLeave = () => {
+    const card = ref.current;
+    if (!card) return;
+    card.style.transform = '';
+  };
+  return { ref, handleMouseMove, handleMouseLeave };
+}
+
+const features = [
+  { icon: '🔍', title: 'Browse & Search', desc: 'Explore listings by keyword, tag, or location. Find exactly what you need on campus.' },
+  { icon: '➕', title: 'Create & Manage Listings', desc: 'Post your own items, edit details, and mark as sold when you make a deal.' },
+  { icon: '💬', title: 'Real-Time Chat', desc: 'Message other students instantly and securely to negotiate and arrange meetups.' },
+  { icon: '🔄', title: 'Trades', desc: 'See what items people want to trade for, and DM them directly to negotiate a swap or deal.' },
+  { icon: '🛒', title: 'Purchase History', desc: 'See everything you\'ve bought in one place, with details and seller info.' },
+  { icon: '🎓', title: 'Recommended For You', desc: 'Get personalized recommendations based on your interests and preferences.' },
+];
+
 function LandingPage() {
   const { currentUser, logout } = useAuth();
   const navigate = useNavigate();
@@ -32,6 +64,9 @@ function LandingPage() {
   const [dashboardStats, setDashboardStats] = useState({ sold: 0, active: 0, bought: 0, loading: true });
   const [recommendedListings, setRecommendedListings] = useState<any[]>([]);
   const [dropdownClosing, setDropdownClosing] = useState(false);
+  const [gridVisible, setGridVisible] = useState(false);
+  const [hasAnimated, setHasAnimated] = useState(false);
+  const gridRef = useRef<HTMLDivElement | null>(null);
 
   // Listen for unread messages
   useEffect(() => {
@@ -131,6 +166,21 @@ function LandingPage() {
     }
     fetchAndScoreListings();
   }, [currentUser, interests, wantedItems]);
+
+  useEffect(() => {
+    if (!gridRef.current) return;
+    const observer = new window.IntersectionObserver(
+      ([entry]) => {
+        if (entry.intersectionRatio > 0 && !hasAnimated) {
+          setGridVisible(true);
+          setHasAnimated(true);
+        }
+      },
+      { threshold: [0] }
+    );
+    observer.observe(gridRef.current);
+    return () => observer.disconnect();
+  }, [hasAnimated]);
 
   const handleLogout = async () => {
     try {
@@ -424,37 +474,27 @@ function LandingPage() {
       <div className="how-we-work-bg">
         <section className="how-we-work-section">
           <h3>Features and Benefits</h3>
-          <div className="how-we-work-grid">
-            <div className="how-we-work-card">
-              <i className="how-we-work-icon">🔍</i>
-              <h4>Browse & Search</h4>
-              <p>Explore listings by keyword, tag, or location. Find exactly what you need on campus.</p>
-            </div>
-            <div className="how-we-work-card">
-              <i className="how-we-work-icon">➕</i>
-              <h4>Create & Manage Listings</h4>
-              <p>Post your own items, edit details, and mark as sold when you make a deal.</p>
-            </div>
-            <div className="how-we-work-card">
-              <i className="how-we-work-icon">💬</i>
-              <h4>Real-Time Chat</h4>
-              <p>Message other students instantly and securely to negotiate and arrange meetups.</p>
-            </div>
-            <div className="how-we-work-card">
-              <i className="how-we-work-icon">🔄</i>
-              <h4>Trades</h4>
-              <p>See what items people want to trade for, and DM them directly to negotiate a swap or deal.</p>
-            </div>
-            <div className="how-we-work-card">
-              <i className="how-we-work-icon">🛒</i>
-              <h4>Purchase History</h4>
-              <p>See everything you've bought in one place, with details and seller info.</p>
-            </div>
-            <div className="how-we-work-card">
-              <i className="how-we-work-icon">🎓</i>
-              <h4>Recommended For You</h4>
-              <p>Get personalized recommendations based on your interests and preferences.</p>
-            </div>
+          <div className="how-we-work-grid" ref={gridRef}>
+            {features.map((f, i) => {
+              const { ref, handleMouseMove, handleMouseLeave } = useCardTilt();
+              const setRefs = (el: HTMLDivElement | null) => {
+                (ref as React.MutableRefObject<HTMLDivElement | null>).current = el;
+              };
+              return (
+                <div
+                  key={f.title}
+                  ref={setRefs}
+                  className={`how-we-work-card dynamic-feature-card${gridVisible ? ' visible' : ''}`}
+                  style={{ animationDelay: `${0.05 + i * 0.07}s` }}
+                  onMouseMove={handleMouseMove}
+                  onMouseLeave={handleMouseLeave}
+                >
+                  <i className="how-we-work-icon">{f.icon}</i>
+                  <h4>{f.title}</h4>
+                  <p>{f.desc}</p>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>
