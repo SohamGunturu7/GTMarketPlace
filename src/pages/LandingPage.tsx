@@ -73,24 +73,6 @@ function LandingPage() {
     }
   }, [currentUser]);
 
-  // Add this new useEffect for particles
-  useEffect(() => {
-    const particlesContainer = document.querySelector('.particles');
-    if (!particlesContainer) return;
-
-    // Create 9 particles
-    for (let i = 0; i < 9; i++) {
-      const particle = document.createElement('div');
-      particle.className = 'particle';
-      particlesContainer.appendChild(particle);
-    }
-
-    // Cleanup
-    return () => {
-      particlesContainer.innerHTML = '';
-    };
-  }, []);
-
   useEffect(() => {
     async function fetchDashboardStats() {
       if (!currentUser) return;
@@ -414,7 +396,6 @@ function LandingPage() {
 
       {/* Hero Section */}
       <section className="awesome-hero-bg">
-        <div className="particles"></div>
         <div className="hero-content">
           <h2 className="hero-headline">
             <span className="welcome-text">Welcome to</span>
@@ -487,13 +468,13 @@ function LandingPage() {
                     <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.sold}</div>
                     <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Sold</div>
                   </div>
-                  <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #4ade80 80%, #3ec6e0 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(76,220,128,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(76,220,128,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(76,220,128,0.13)' }>
-                    <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.active}</div>
-                    <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Active Listings</div>
+                  <div style={{ gridColumn: '2', background: 'linear-gradient(135deg, #232a34 80%, #181c23 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(24,28,35,0.13)', padding: '1.5rem 1.7rem', color: '#fffbe6', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(24,28,35,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(24,28,35,0.13)' }>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#fffbe6', marginBottom: 2 }}>{dashboardStats.active}</div>
+                    <div style={{ fontSize: 18, color: '#fffbe6', fontWeight: 600 }}>Active Listings</div>
                   </div>
-                  <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #3ec6e0 80%, #4ade80 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(62,198,224,0.13)', padding: '1.5rem 1.7rem', color: '#fff', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(62,198,224,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(62,198,224,0.13)' }>
-                    <div style={{ fontSize: 32, fontWeight: 900, color: '#fff', marginBottom: 2 }}>{dashboardStats.bought}</div>
-                    <div style={{ fontSize: 18, color: '#fff', fontWeight: 600 }}>Bought</div>
+                  <div style={{ gridColumn: '1 / span 2', justifySelf: 'center', background: 'linear-gradient(135deg, #fff 80%, #f8f9fa 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(191,161,74,0.10)', padding: '1.5rem 1.7rem', color: '#232a34', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', marginTop: '0.5rem', width: '60%', minWidth: 220, transition: 'box-shadow 0.2s', cursor: 'pointer' }} onMouseOver={e => e.currentTarget.style.boxShadow = '0 8px 32px rgba(191,161,74,0.18)'} onMouseOut={e => e.currentTarget.style.boxShadow = '0 4px 24px rgba(191,161,74,0.10)' }>
+                    <div style={{ fontSize: 32, fontWeight: 900, color: '#232a34', marginBottom: 2 }}>{dashboardStats.bought}</div>
+                    <div style={{ fontSize: 18, color: '#232a34', fontWeight: 600 }}>Bought</div>
                   </div>
                 </div>
               </section>

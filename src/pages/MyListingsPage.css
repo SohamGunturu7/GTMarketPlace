@@ -112,10 +112,15 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
+.my-listing-status.active {
+  background: linear-gradient(90deg, #B3A369 0%, #e6c97a 100%);
+  color: #003057;
+  border-color: #bfa14a;
+}
 .my-listing-status.sold {
-  background: linear-gradient(90deg, #f87171 0%, #fbbf24 100%);
-  color: #fff;
-  border-color: #f87171;
+  background: linear-gradient(90deg, #fff 0%, #f8f9fa 100%);
+  color: #232a34;
+  border-color: #e2e8f0;
 }
 .my-listing-price {
   position: absolute;
@@ -319,12 +324,32 @@
 }
 
 .delete-btn {
-  background: linear-gradient(90deg, #f87171 0%, #fbbf24 100%);
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #fffbe6;
 }
 
 .delete-btn:hover {
-  background: linear-gradient(90deg, #f87171 0%, #fbbf24 80%, #f87171 100%);
-  color: #fff;
-  transform: scale(1.07);
-  box-shadow: 0 4px 16px rgba(248,113,113,0.13);
+  background: linear-gradient(90deg, #181c23 0%, #232a34 100%);
+  color: #bfa14a;
+}
+
+/* Add a new class for the gold button */
+.mark-sold-btn {
+  background: linear-gradient(90deg, #B3A369 0%, #e6c97a 100%);
+  color: #003057;
+}
+.mark-sold-btn:hover {
+  background: linear-gradient(90deg, #003057 0%, #B3A369 100%);
+  color: #fffbe6;
+}
+
+.mark-sold-btn, .delete-btn {
+  border-radius: 9999px !important;
+  font-family: 'Inter', 'Segoe UI', Arial, sans-serif;
+  font-weight: 700;
+  font-size: 1.1rem;
+  text-transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 } 

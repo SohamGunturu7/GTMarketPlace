@@ -136,23 +136,34 @@ export default function RecentActivityFeed() {
 
   return (
     <section className="recent-activity-section">
+      <div className="recent-activity-bg"></div>
       <h3 className="recent-activity-title">Recent Activity</h3>
       <div className="recent-activity-feed">
         {loading ? (
           <div className="recent-activity-loading">Loading...</div>
         ) : !currentUser ? (
-          <div className="recent-activity-empty">No recent activity yet.</div>
+          <div className="recent-activity-empty">
+            <div className="empty-illustration" role="img" aria-label="No activity">🕊️</div>
+            <div>No recent activity yet.</div>
+          </div>
         ) : activities.length === 0 ? (
-          <div className="recent-activity-empty">No recent activity yet.</div>
+          <div className="recent-activity-empty">
+            <div className="empty-illustration" role="img" aria-label="No activity">🕊️</div>
+            <div>No recent activity yet.</div>
+          </div>
         ) : (
-          activities.slice(0, 2).map(item => {
-            let time: any = item.createdAt;
+          activities.slice(0, 6).map((item, idx) => {
+            let time = item.createdAt;
             const anyItem = item as any;
             if (anyItem && anyItem.updatedAt) {
               time = anyItem.updatedAt;
             }
             return (
-              <div className="recent-activity-item" key={item.id}>
+              <div
+                className="recent-activity-item animated-entry"
+                key={item.id}
+                style={{ animationDelay: `${0.08 * idx + 0.1}s` }}
+              >
                 <div className="recent-activity-thumb-wrap">
                   <div className="recent-activity-thumb">
                     <img src={item.imageUrl || './techtower.jpeg'} alt={item.title} onError={e => { e.currentTarget.src = './techtower.jpeg'; }} />
@@ -160,9 +171,7 @@ export default function RecentActivityFeed() {
                 </div>
                 <div className="recent-activity-info">
                   <div className="activity-type-pill-wrap">
-                    <span className={`activity-type-pill ${item.status === 'sold' ? 'sold' : item.status === 'bought' ? 'bought' : 'listed'}`}>
-                      {item.status === 'sold' && item.userId === currentUser.uid ? 'Sold' : item.status === 'bought' ? 'Bought' : 'Listed'}
-                    </span>
+                    <span className={`activity-type-pill ${item.status === 'sold' ? 'sold' : item.status === 'bought' ? 'bought' : 'listed'}`}>{item.status === 'sold' && item.userId === currentUser.uid ? 'Sold' : item.status === 'bought' ? 'Bought' : 'Listed'}</span>
                   </div>
                   <div className="activity-title-row">
                     <b className="activity-title">{item.title}</b>

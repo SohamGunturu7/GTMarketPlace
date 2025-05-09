@@ -243,9 +243,24 @@
 }
 
 .new-listing-button {
-  background: linear-gradient(135deg, #3ec6e0 0%, #4ade80 100%);
-  color: #003057;
-  box-shadow: 0 4px 20px rgba(62, 198, 224, 0.3);
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #bfa14a;
+  font-weight: 700;
+  font-size: 1.2rem;
+  padding: 1rem 2.5rem;
+  border: none;
+  border-radius: 9999px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.10);
+  cursor: pointer;
+  transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+  outline: none;
+  display: inline-block;
+}
+.new-listing-button:hover {
+  background: linear-gradient(90deg, #232a34 0%, #232a34 100%);
+  color: #fffbe6;
+  transform: translateY(-3px) scale(1.04);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
 
 .cta-button::before, .new-listing-button::before {
@@ -1100,8 +1115,8 @@
 }
 .add-tag-button {
   padding: 0.7rem 1.5rem;
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: white;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #fffbe6;
   border: none;
   border-radius: 0.7rem;
   font-weight: 700;
@@ -1112,7 +1127,8 @@
 }
 .add-tag-button:hover {
   transform: scale(1.05);
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
+  background: linear-gradient(90deg, #181c23 0%, #232a34 100%);
+  color: #bfa14a;
 }
 
 .button-group {
@@ -1237,8 +1253,8 @@
 }
 
 .new-listing-button {
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #bfa14a;
   font-weight: 700;
   font-size: 1.2rem;
   padding: 1rem 2.5rem;
@@ -1251,7 +1267,8 @@
   display: inline-block;
 }
 .new-listing-button:hover {
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
+  background: linear-gradient(90deg, #232a34 0%, #232a34 100%);
+  color: #fffbe6;
   transform: translateY(-3px) scale(1.04);
   box-shadow: 0 8px 32px rgba(0,0,0,0.18);
 }
@@ -1480,8 +1497,8 @@
 
 .add-tag-button {
   padding: 0.5rem 1rem;
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: white;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #fffbe6;
   border: none;
   border-radius: 0.375rem;
   font-weight: 500;
@@ -1491,6 +1508,8 @@
 
 .add-tag-button:hover {
   transform: scale(1.05);
+  background: linear-gradient(90deg, #181c23 0%, #232a34 100%);
+  color: #bfa14a;
 }
 
 .success-message {
@@ -1690,8 +1709,8 @@
 }
 
 .recommended-view-btn {
-  background: linear-gradient(90deg, #4ade80 0%, #3ec6e0 100%);
-  color: #003057;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #fffbe6;
   font-weight: 700;
   font-size: 1.05rem;
   border: none;
@@ -1707,8 +1726,8 @@
   display: inline-block;
 }
 .recommended-view-btn:hover {
-  background: linear-gradient(90deg, #3ec6e0 0%, #4ade80 100%);
-  color: #fff;
+  background: linear-gradient(90deg, #181c23 0%, #232a34 100%);
+  color: #bfa14a;
   transform: translateY(-2px) scale(1.09);
   box-shadow: 0 4px 16px rgba(62,198,224,0.13), 0 0 0 4px #4ade8033;
 }

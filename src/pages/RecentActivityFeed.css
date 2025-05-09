@@ -1,7 +1,7 @@
 .recent-activity-section {
   background: #fffbe6;
   border-radius: 1.5rem;
-  box-shadow: 0 8px 32px rgba(179,163,105,0.10);
+  box-shadow: 0 8px 32px rgba(191,161,74,0.13);
   padding: 2.8rem 2.5rem 2.2rem 2.5rem;
   margin: 0;
   width: 100%;
@@ -22,9 +22,9 @@
   display: block;
   width: 60px;
   height: 5px;
-  background: linear-gradient(90deg, #B3A369 0%, #e6c97a 100%);
+  background: linear-gradient(90deg, #bfa14a 0%, #e6c97a 100%);
   border-radius: 3px;
-  margin-top: 0.5rem;
+  margin-top: 0.7rem;
 }
 .recent-activity-feed {
   display: flex;
@@ -39,18 +39,19 @@
   gap: 2rem;
   width: 100%;
   border-radius: 1.2rem;
-  box-shadow: 0 4px 24px rgba(179,163,105,0.13);
+  box-shadow: 0 4px 24px rgba(24,28,35,0.13);
   padding: 1.3rem 2.2rem 1.3rem 1.3rem;
   margin: 0 auto;
   min-height: 100px;
-  background: #fff;
+  background: linear-gradient(135deg, #232a34 0%, #181c23 100%);
   position: relative;
   animation: fadeInUp 0.7s cubic-bezier(0.4,0,0.2,1);
   transition: box-shadow 0.2s, transform 0.2s;
   max-width: 800px;
+  border: 1.5px solid #232a34;
 }
 .recent-activity-item:hover {
-  box-shadow: 0 12px 36px rgba(179,163,105,0.18);
+  box-shadow: 0 12px 36px rgba(24,28,35,0.18);
   transform: translateY(-4px) scale(1.018);
 }
 .recent-activity-thumb-wrap {
@@ -67,7 +68,7 @@
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(179,163,105,0.13);
-  background: #f8f9fa;
+  background: #232a34;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -94,25 +95,25 @@
   font-weight: 700;
   letter-spacing: 0.5px;
   text-transform: uppercase;
-  background: #fffbe6;
-  color: #B3A369;
-  box-shadow: 0 1px 4px rgba(179,163,105,0.08);
-  border: 1.5px solid #e6c97a;
+  background: #232a34;
+  color: #fffbe6;
+  box-shadow: 0 1px 4px rgba(24,28,35,0.08);
+  border: 1.5px solid #bfa14a;
 }
 .activity-type-pill.sold {
-  background: linear-gradient(90deg, #f87171 0%, #fbbf24 100%);
-  color: #fff;
-  border: none;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #bfa14a;
+  border: 1.5px solid #bfa14a;
 }
 .activity-type-pill.listed {
-  background: linear-gradient(90deg, #B3A369 0%, #e6c97a 100%);
-  color: #003057;
-  border: none;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #fffbe6;
+  border: 1.5px solid #fffbe6;
 }
 .activity-type-pill.bought {
-  background: linear-gradient(90deg, #7ee8fa 0%, #55e7b4 100%);
-  color: #003057;
-  border: none;
+  background: linear-gradient(90deg, #232a34 0%, #181c23 100%);
+  color: #fffbe6;
+  border: 1.5px solid #fffbe6;
 }
 .recent-activity-info {
   flex: 1;
@@ -129,7 +130,7 @@
   margin-bottom: 0.2rem;
 }
 .activity-title {
-  color: #003057;
+  color: #fffbe6;
   font-size: 1.25rem;
   font-weight: 900;
   margin-right: 0.5rem;
@@ -139,7 +140,7 @@
   max-width: 300px;
 }
 .activity-price {
-  color: #3ec6e0;
+  color: #bfa14a;
   font-size: 1.13rem;
   font-weight: 700;
   margin-left: 0.7rem;
@@ -153,12 +154,12 @@
   margin-top: 0.2rem;
 }
 .seller-name {
-  color: #003057;
+  color: #bfa14a;
   font-weight: 500;
   font-size: 1.01rem;
 }
 .recent-activity-time {
-  color: #718096;
+  color: #e2e8f0;
   font-size: 1.01rem;
   font-weight: 500;
 }
@@ -248,4 +249,69 @@
     opacity: 1;
     transform: translateY(0);
   }
+}
+
+/* Animated entry for activity cards */
+.animated-entry {
+  opacity: 0;
+  transform: translateY(32px) scale(0.97);
+  animation: fadeInUp 0.7s cubic-bezier(0.4,0,0.2,1) forwards;
+}
+
+/* Empty state illustration */
+.empty-illustration {
+  font-size: 3.5rem;
+  margin-bottom: 0.7rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.7;
+}
+
+/* Dynamic animated background */
+.recent-activity-bg {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: none;
+}
+.recent-activity-bg::before {
+  content: '';
+  position: absolute;
+  top: -80px;
+  left: -80px;
+  width: 340px;
+  height: 340px;
+  background: radial-gradient(circle at 30% 30%, #f7e9b6 0%, transparent 70%);
+  filter: blur(18px);
+  animation: floatBg 12s ease-in-out infinite alternate;
+  opacity: 0.5;
+}
+.recent-activity-bg::after {
+  content: '';
+  position: absolute;
+  bottom: -60px;
+  right: -60px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(circle at 70% 70%, #fffbe6 0%, transparent 70%);
+  filter: blur(16px);
+  animation: floatBg2 14s ease-in-out infinite alternate;
+  opacity: 0.4;
+}
+@keyframes floatBg {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(40px) scale(1.08); }
+}
+@keyframes floatBg2 {
+  0% { transform: translateY(0) scale(1); }
+  100% { transform: translateY(-30px) scale(1.12); }
+}
+.recent-activity-empty {
+  color: #bfa14a;
+  font-size: 1.5rem;
+  margin-top: 2.5rem;
+  text-align: center;
+  font-weight: 500;
 } 
