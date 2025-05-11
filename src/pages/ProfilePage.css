@@ -116,10 +116,16 @@ Thi
 }
 
 .success-message {
-  color: #38a169;
-  font-size: 0.875rem;
+  background: #003057;
+  color: #fff;
+  font-size: 0.95rem;
   margin-top: 1rem;
   text-align: center;
+  border-radius: 0.7rem;
+  padding: 0.7rem 1.1rem;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(0,48,87,0.08);
+  border: 1.5px solid #003057;
 }
 
 .tags-container {

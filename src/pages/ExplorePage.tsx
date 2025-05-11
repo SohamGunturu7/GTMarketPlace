@@ -4,6 +4,7 @@ import { collection, getDocs, doc, getDoc, query, where, deleteDoc } from 'fireb
 import { db } from '../firebase/config';
 import './ExplorePage.css';
 import { useAuth } from '../contexts/AuthContext';
+import CampusMap from './CampusMap';
 
 const tagIcons: Record<string, string> = {
   Textbooks: '📚',
@@ -41,6 +42,7 @@ export default function ExplorePage() {
   const tradeDropdownRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
   const navigate = useNavigate();
   const { currentUser } = useAuth();
+  const [showMap, setShowMap] = useState(false);
 
   useEffect(() => {
     const fetchListings = async () => {
@@ -160,6 +162,12 @@ export default function ExplorePage() {
     e.currentTarget.alt = 'Tech Tower';
   };
 
+  console.log(
+    filteredListings
+      .filter(l => Number.isFinite(l.lat) && Number.isFinite(l.lng))
+      .map(l => ({ id: l.id, lat: l.lat, lng: l.lng, title: l.title }))
+  );
+
   return (
     <div className="explore-page">
       <nav className="landing-nav glass-nav">
@@ -195,7 +203,34 @@ export default function ExplorePage() {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
           />
+          <button className="view-map-btn-dark" onClick={() => setShowMap(true)}>
+            View Map
+          </button>
         </div>
+        {showMap && (
+          <div className="map-modal-overlay fullscreen" onClick={() => setShowMap(false)}>
+            <div className="map-modal fullscreen" onClick={e => e.stopPropagation()}>
+              <button className="close-map-btn" onClick={() => setShowMap(false)}>&times;</button>
+              {(() => {
+                console.log('Filtered listings before map:', filteredListings);
+                console.log('Listings with valid coordinates:', filteredListings.filter(l => Number.isFinite(l.lat) && Number.isFinite(l.lng)));
+                return null;
+              })()}
+              <CampusMap
+                listings={filteredListings
+                  .filter(l => {
+                    const hasValidCoords = Number.isFinite(l.lat) && Number.isFinite(l.lng);
+                    if (!hasValidCoords) {
+                      console.log('Listing with invalid coordinates:', l);
+                    }
+                    return hasValidCoords;
+                  })
+                  .map(l => ({ id: l.id, lat: l.lat, lng: l.lng, title: l.title }))
+                }
+              />
+            </div>
+          </div>
+        )}
         <div className="explore-listings-grid">
           {loading ? (
             <div className="no-results">Loading...</div>
@@ -213,45 +248,48 @@ export default function ExplorePage() {
                   <span className="explore-price-tag">${listing.price}</span>
                 </div>
                 <div className="explore-listing-details">
-                  <h4>{listing.title}</h4>
-                  <p className="explore-listing-desc">{listing.description}</p>
-                  <div className="explore-tradefor-tags">
-                    <button className="message-btn" onClick={() => handleTradeClick(listing.id)}>
+                  <div className="explore-listing-actions">
+                    <button className="message-btn" title="Trade" onClick={() => handleTradeClick(listing.id)}>
                       Trade
                     </button>
-                    <button className="message-btn" onClick={() => handleMessageClick(listing)}>Message</button>
+                    <button className="message-btn" title="Message" onClick={() => handleMessageClick(listing)}>
+                      Message
+                    </button>
                     {currentUser && listing.userId === currentUser.uid && (
                       <button
                         className="message-btn"
+                        title="Delete"
                         style={{ marginLeft: '10px' }}
                         onClick={() => handleDeleteListing(listing.id)}
                       >
                         Delete
                       </button>
                     )}
-                    {showTradeFor[listing.id] && (
-                      <div
-                        className="trade-dropdown"
-                        ref={el => (tradeDropdownRefs.current[listing.id] = el)}
-                      >
-                        <div className="trade-dropdown-title">Willing to Trade For:</div>
-                        <div className="trade-dropdown-tags">
-                          {listing.tradeFor && listing.tradeFor.split(',').map((item: string, idx: number) => (
-                            <span className="explore-tradefor-tag" key={idx}>{item.trim()}</span>
-                          ))}
-                        </div>
+                  </div>
+                  <h4>{listing.title}</h4>
+                  <p className="explore-listing-desc">{listing.description}</p>
+                  {showTradeFor[listing.id] && (
+                    <div
+                      className="trade-dropdown"
+                      ref={el => (tradeDropdownRefs.current[listing.id] = el)}
+                    >
+                      <div className="trade-dropdown-title">Willing to Trade For:</div>
+                      <div className="trade-dropdown-tags">
+                        {listing.tradeFor && listing.tradeFor.split(',').map((item: string, idx: number) => (
+                          <span className="explore-tradefor-tag" key={idx}>{item.trim()}</span>
+                        ))}
                       </div>
-                    )}
+                    </div>
+                  )}
+                  <div className="explore-tags">
+                    {listing.tags && listing.tags.map((tag: string) => (
+                      <span className="explore-tag" key={tag}>{tag}</span>
+                    ))}
                   </div>
                   <div className="explore-listing-meta">
                     <div className="explore-listing-info">
                       <span>{listing.location}</span>
                       <span className="explore-listing-date">{formatDate(listing.createdAt)}</span>
-                    </div>
-                    <div className="explore-tags">
-                      {listing.tags && listing.tags.map((tag: string) => (
-                        <span className="explore-tag" key={tag}>{tag}</span>
-                      ))}
                     </div>
                   </div>
                 </div>

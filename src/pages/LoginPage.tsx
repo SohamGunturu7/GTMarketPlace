@@ -24,6 +24,15 @@ function LoginPage() {
     }
   }, [currentUser, navigate]);
 
+  useEffect(() => {
+    // Prevent scrolling on login page
+    const originalOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => {
+      document.body.style.overflow = originalOverflow;
+    };
+  }, []);
+
   const handleCreateAccount = () => {
     setShowCreateAccount(true);
   };
@@ -57,6 +66,7 @@ function LoginPage() {
 
   const handleBackToLogin = () => {
     setError('');
+    setShowCreateAccount(false);
   };
 
   const handleSubmitCreateAccount = async () => {

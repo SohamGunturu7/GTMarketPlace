@@ -152,7 +152,7 @@ export default function RecentActivityFeed() {
             <div>No recent activity yet.</div>
           </div>
         ) : (
-          activities.slice(0, 6).map((item, idx) => {
+          activities.slice(0, 2).map((item, idx) => {
             let time = item.createdAt;
             const anyItem = item as any;
             if (anyItem && anyItem.updatedAt) {

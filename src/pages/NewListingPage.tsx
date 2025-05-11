@@ -5,6 +5,7 @@ import { collection, addDoc, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import './NewListingPage.css';
 import { useAuth } from '../contexts/AuthContext';
+import CampusMap from './CampusMap';
 
 const sampleTags = [
   'Textbooks', 'Electronics', 'Clothing', 'Housing', 'Furniture', 'Tickets', 'Services', 'Appliances', 'Other'
@@ -26,6 +27,8 @@ export default function NewListingPage() {
   const [tradeFor, setTradeFor] = useState('');
   const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
   const [suggestLoading, setSuggestLoading] = useState(false);
+  const [showMapModal, setShowMapModal] = useState(false);
+  const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(null);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -64,6 +67,13 @@ export default function NewListingPage() {
     setSuggestLoading(false);
   };
 
+  const handleMapClick = (e: google.maps.MapMouseEvent) => {
+    if (e.latLng) {
+      setMarker({ lat: e.latLng.lat(), lng: e.latLng.lng() });
+      setShowMapModal(false);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -95,6 +105,8 @@ export default function NewListingPage() {
         userId: currentUser?.uid,
         tags: selectedTags,
         tradeFor,
+        lat: marker?.lat || null,
+        lng: marker?.lng || null,
       });
       setSuccess('Listing created successfully!');
       setTimeout(() => navigate('/my-listings'), 1200);
@@ -189,15 +201,35 @@ export default function NewListingPage() {
                 </div>
                 <div className="form-group">
                   <label htmlFor="location">Location</label>
-                  <input
-                    type="text"
-                    id="location"
-                    value={location}
-                    onChange={(e) => setLocation(e.target.value)}
-                    required
-                    placeholder=" "
-                  />
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.7rem' }}>
+                    <input
+                      type="text"
+                      id="location"
+                      value={location}
+                      onChange={(e) => setLocation(e.target.value)}
+                      required
+                      placeholder=" "
+                    />
+                    <button type="button" className="set-map-btn" onClick={() => setShowMapModal(true)}>
+                      Set on Map
+                    </button>
+                  </div>
+                  {marker && (
+                    <div style={{ fontSize: '0.95rem', color: '#003057', marginTop: '0.3rem' }}>
+                      Pin set at: <b>({marker.lat.toFixed(5)}, {marker.lng.toFixed(5)})</b>
+                      <button type="button" style={{ marginLeft: 8, color: '#bfa14a', background: 'none', border: 'none', cursor: 'pointer' }} onClick={() => setMarker(null)}>Clear</button>
+                    </div>
+                  )}
                 </div>
+                {showMapModal && (
+                  <div className="map-modal-overlay fullscreen" onClick={() => setShowMapModal(false)}>
+                    <div className="map-modal fullscreen" onClick={e => e.stopPropagation()}>
+                      <button className="close-map-btn" onClick={() => setShowMapModal(false)}>&times;</button>
+                      <CampusMap onMapClick={handleMapClick} marker={marker} />
+                      <div style={{ marginTop: 12, color: '#003057', fontWeight: 600 }}>Click on the map to set a pin for your listing location.</div>
+                    </div>
+                  </div>
+                )}
                 <div className="form-group">
                   <label htmlFor="description">Description</label>
                   <textarea
