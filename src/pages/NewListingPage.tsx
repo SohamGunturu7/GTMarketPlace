@@ -225,7 +225,7 @@ export default function NewListingPage() {
                   <div className="map-modal-overlay fullscreen" onClick={() => setShowMapModal(false)}>
                     <div className="map-modal fullscreen" onClick={e => e.stopPropagation()}>
                       <button className="close-map-btn" onClick={() => setShowMapModal(false)}>&times;</button>
-                      <CampusMap onMapClick={handleMapClick} marker={marker} />
+                      <CampusMap onMapClick={handleMapClick} marker={marker} showMap={true} />
                       <div style={{ marginTop: 12, color: '#003057', fontWeight: 600 }}>Click on the map to set a pin for your listing location.</div>
                     </div>
                   </div>
