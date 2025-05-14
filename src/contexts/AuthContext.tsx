@@ -83,8 +83,10 @@ export function AuthProvider({ children }: AuthProviderProps) {
       try {
         const response = await fetch(user.photoURL);
         const blob = await response.blob();
+        // Ensure correct content type (image/jpeg or from blob)
+        const contentType = blob.type || 'image/jpeg';
         const storageRef = ref(storage, `profile-pictures/${user.uid}`);
-        await uploadBytes(storageRef, blob);
+        await uploadBytes(storageRef, blob, { contentType });
         profilePictureUrl = await getDownloadURL(storageRef);
         // Update Auth profile as well
         await updateProfile(user, { photoURL: profilePictureUrl });

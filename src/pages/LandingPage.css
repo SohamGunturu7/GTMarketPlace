@@ -1803,4 +1803,27 @@
 @keyframes dynamicFeatureFadeIn {
   from { opacity: 0; transform: translateY(30px) scale(0.97); }
   to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.logout-popup {
+  position: fixed;
+  top: 32px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: linear-gradient(90deg, #003057 0%, #B3A369 100%);
+  color: #fffbe6;
+  padding: 1rem 2.5rem;
+  border-radius: 1.2rem;
+  font-size: 1.2rem;
+  font-weight: 700;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.13);
+  z-index: 2000;
+  opacity: 1;
+  animation: fadeInOut 2s;
+}
+@keyframes fadeInOut {
+  0% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
+  10% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  90% { opacity: 1; transform: translateX(-50%) translateY(0); }
+  100% { opacity: 0; transform: translateX(-50%) translateY(-20px); }
 } 

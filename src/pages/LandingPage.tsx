@@ -67,6 +67,7 @@ function LandingPage() {
   const [gridVisible, setGridVisible] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const gridRef = useRef<HTMLDivElement | null>(null);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
 
   // Listen for unread messages
   useEffect(() => {
@@ -185,6 +186,8 @@ function LandingPage() {
   const handleLogout = async () => {
     try {
       await logout();
+      setShowLogoutPopup(true);
+      setTimeout(() => setShowLogoutPopup(false), 2000);
       navigate('/');
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -312,6 +315,9 @@ function LandingPage() {
 
   return (
     <div className="landing-container">
+      {showLogoutPopup && (
+        <div className="logout-popup">Logged Out</div>
+      )}
       <nav className="landing-nav glass-nav">
         <div className="landing-nav-left">
           <img src="./logo.png" alt="GT Logo" className="gt-logo" />
