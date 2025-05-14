@@ -178,7 +178,17 @@ export default function ExplorePage() {
                     >
                       Trade
                     </button>
-                    <button className="message-btn" onClick={() => {/* message logic */}}>
+                    <button className="message-btn" onClick={() => {
+                      if (!currentUser || !listing.userId || currentUser.uid === listing.userId) return;
+                      navigate('/messages', {
+                        state: {
+                          listingId: listing.id,
+                          recipientId: listing.userId,
+                          senderId: currentUser.uid,
+                          listingTitle: listing.title,
+                        }
+                      });
+                    }}>
                       Message
                     </button>
                     {currentUser?.uid === listing.userId && (

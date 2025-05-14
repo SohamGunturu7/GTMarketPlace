@@ -218,7 +218,7 @@ export default function MessagesPage() {
                 messages.map((msg, idx) => (
                   <div
                     key={idx}
-                    className={`chat-bubble${msg.from === currentUser?.uid ? ' from-me' : ''}`}
+                    className={`chat-bubble${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
                     style={{ animationDelay: `${idx * 0.05}s` }}
                   >
                     {msg.text}
