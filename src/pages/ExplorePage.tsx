@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { collection, getDocs, doc, getDoc, deleteDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/config';
 import './ExplorePage.css';
 import { useAuth } from '../contexts/AuthContext';
@@ -27,6 +27,8 @@ export default function ExplorePage() {
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [showTradeFor, setShowTradeFor] = useState<Record<string, boolean>>({});
+  const [favorites, setFavorites] = useState<string[]>([]);
+  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const tradeDropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const navigate = useNavigate();
   const { currentUser } = useAuth();
@@ -57,6 +59,46 @@ export default function ExplorePage() {
     })();
   }, []);
 
+  /* ——————————————————— fetch user favorites ——————————————————— */
+  useEffect(() => {
+    if (currentUser) {
+      (async () => {
+        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        if (userDoc.exists()) {
+          const userData = userDoc.data();
+          setFavorites(userData.favorites || []);
+        }
+      })();
+    }
+  }, [currentUser]);
+
+  /* ——————————————————— toggle favorite ——————————————————— */
+  const toggleFavorite = async (listingId: string) => {
+    if (!currentUser) {
+      navigate('/login');
+      return;
+    }
+
+    const userRef = doc(db, 'users', currentUser.uid);
+    const isFavorited = favorites.includes(listingId);
+
+    try {
+      if (isFavorited) {
+        await updateDoc(userRef, {
+          favorites: arrayRemove(listingId)
+        });
+        setFavorites(prev => prev.filter(id => id !== listingId));
+      } else {
+        await updateDoc(userRef, {
+          favorites: arrayUnion(listingId)
+        });
+        setFavorites(prev => [...prev, listingId]);
+      }
+    } catch (error) {
+      console.error('Error updating favorites:', error);
+    }
+  };
+
   /* ——————————————————— outside‑click handler for trade dropdown ——————————————————— */
   useEffect(() => {
     const handle = (e: MouseEvent) => {
@@ -78,7 +120,8 @@ export default function ExplorePage() {
     const matchesTag =
       selectedTags.length === 0 || l.tags?.some((t: string) => selectedTags.includes(t));
     const notSold = !l.status || (typeof l.status === 'string' && l.status.toLowerCase() !== 'sold');
-    return matchesSearch && matchesTag && notSold;
+    const matchesFavorites = !showFavoritesOnly || favorites.includes(l.id);
+    return matchesSearch && matchesTag && notSold && matchesFavorites;
   });
   const hasCoords = (l: any) => !isNaN(l.lat) && !isNaN(l.lng);
 
@@ -105,6 +148,15 @@ export default function ExplorePage() {
       <aside className="filter-bar glass-filter">
         <h3>Filter by Tag</h3>
         <div className="tag-list">
+          {currentUser && (
+            <button
+              className={`tag-btn${showFavoritesOnly ? ' selected' : ''}`}
+              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
+            >
+              <span className="tag-icon">❤️</span>
+              <span className="tag-label">Favorites</span>
+            </button>
+          )}
           {sampleTags.map(tag => (
             <button
               key={tag}
@@ -156,6 +208,16 @@ export default function ExplorePage() {
             filteredListings.map(listing => (
               <div className="explore-listing-card" key={listing.id}>
                 <div className="explore-listing-image">
+                  <button 
+                    className={`favorite-btn ${favorites.includes(listing.id) ? 'favorited' : ''}`}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      toggleFavorite(listing.id);
+                    }}
+                    title={favorites.includes(listing.id) ? 'Remove from favorites' : 'Add to favorites'}
+                  >
+                    {favorites.includes(listing.id) ? '❤️' : '🤍'}
+                  </button>
                   <img
                     src={listing.image || './techtower.jpeg'}
                     alt={listing.title}
