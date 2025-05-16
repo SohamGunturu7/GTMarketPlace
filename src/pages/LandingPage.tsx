@@ -506,20 +506,31 @@ function LandingPage() {
       </div>
 
       {currentUser && (
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '2.5rem', justifyContent: 'center', alignItems: 'stretch', width: '100%', maxWidth: '1400px', margin: '0 auto 4rem auto', height: '520px' }}>
-          <div style={{ flex: 1, minWidth: 0, maxWidth: 520, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', height: '100%', background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0 }}>
-            <div style={{ height: '100%' }}>
-              <RecentActivityFeed />
-            </div>
+        <div
+          className="dashboard-activity-container"
+          style={{
+            display: 'flex',
+            flexDirection: window.innerWidth <= 600 ? 'column' : 'row',
+            gap: window.innerWidth <= 600 ? '2.2rem' : '2.5rem',
+            justifyContent: 'center',
+            alignItems: 'stretch',
+            width: '100%',
+            maxWidth: '1400px',
+            margin: '0 auto 4rem auto',
+            height: window.innerWidth <= 600 ? 'auto' : '520px',
+          }}
+        >
+          <div style={{ flex: 1, minWidth: 0, maxWidth: 520, height: '100%' }}>
+            <RecentActivityFeed />
           </div>
-          <div style={{ flex: 1, minWidth: 0, maxWidth: 520, display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start', height: '100%', background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0 }}>
-            <div style={{ height: '100%', background: '#fffde7', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '2.2rem 1.2rem', display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
-              <section>
-                <h3 className="recent-activity-title" style={{ color: '#003057', fontSize: '2.2rem', fontWeight: 900, marginBottom: '2.2rem', letterSpacing: '-1px', marginTop: 0, textAlign: 'left', position: 'relative' }}>
-                  Dashboard
-                </h3>
+          <div style={{ flex: 1, minWidth: 0, maxWidth: 520, height: '100%' }}>
+            <section className="dashboard-section" style={{ background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' }}>
+              <h3 className="dashboard-title" style={{ color: '#003057', fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.7rem', letterSpacing: '-1px', marginTop: 0, textAlign: 'left', position: 'relative' }}>
+                Dashboard
+              </h3>
+              <div className="dashboard-inner-box" style={{ background: '#fffbe6', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '2.2rem 1.2rem', marginTop: 0, marginBottom: 0, width: '100%', boxSizing: 'border-box', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
                 {/* 2-on-1 row, 1-on-next-row infographic layout */}
-                <div style={{ width: '100%', margin: '2.2rem 0 2.5rem 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
+                <div style={{ width: '100%', margin: '0 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
                   <div style={{ display: 'flex', flexDirection: 'row', justifyContent: 'center', alignItems: 'stretch', gap: '1.5rem', width: '100%' }}>
                     {/* Sold Stat */}
                     <div style={{ flex: 1, minWidth: 0, maxWidth: 170, height: 120, background: 'linear-gradient(135deg, #bfa14a 80%, #e6c97a 100%)', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
@@ -540,8 +551,8 @@ function LandingPage() {
                     </div>
                   </div>
                 </div>
-              </section>
-            </div>
+              </div>
+            </section>
           </div>
         </div>
       )}

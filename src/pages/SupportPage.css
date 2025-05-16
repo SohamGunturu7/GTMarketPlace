@@ -190,9 +190,45 @@
 }
 @media (max-width: 700px) {
   .support-nav {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 0.5rem;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    z-index: 2147483647 !important;
+    margin-top: 0 !important;
+    flex-direction: column !important;
+    align-items: stretch !important;
+    gap: 0.5rem !important;
+    padding-bottom: 0.2rem !important;
+  }
+  .support-nav-links.button-row {
+    flex-direction: row !important;
+    gap: 0.5rem !important;
+    padding: 0.3rem 0.2rem !important;
+    justify-content: center !important;
+    margin-bottom: 0.7rem !important;
+  }
+  .gold-button {
+    font-size: 0.95rem !important;
+    padding: 0.4em 0.7em !important;
+    min-width: 0 !important;
+    max-width: 33vw !important;
+    white-space: nowrap !important;
+  }
+  .support-main {
+    margin-top: 6.2rem !important;
+    padding-top: 0 !important;
+  }
+  .page-title {
+    font-size: 3.2rem !important;
+    font-weight: 900 !important;
+    color: #fffbe6 !important;
+    text-align: center !important;
+    margin: 0.7rem 0 1.5rem 0 !important;
+    text-decoration: underline 7px #b3a369 !important;
+    letter-spacing: 0.5px !important;
+    line-height: 1.08 !important;
+    display: block !important;
   }
   .support-nav-center {
     justify-content: flex-start;
@@ -202,10 +238,6 @@
   }
   .support-title {
     font-size: 2rem;
-  }
-  .support-main {
-    padding: 1.2rem 0.5rem 1rem 0.5rem;
-    gap: 2rem;
   }
   .support-section {
     padding: 1.2rem 0.7rem;
