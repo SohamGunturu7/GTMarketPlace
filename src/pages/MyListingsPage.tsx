@@ -2,7 +2,7 @@ import './MyListingsPage.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { useEffect, useState } from 'react';
-import { collection, query, where, getDocs, doc, updateDoc, getDoc, arrayUnion, serverTimestamp, deleteDoc } from 'firebase/firestore';
+import { collection, query, where, getDocs, doc, updateDoc, arrayUnion, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
 
 export default function MyListingsPage() {

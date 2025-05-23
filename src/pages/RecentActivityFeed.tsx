@@ -22,7 +22,7 @@ export default function RecentActivityFeed() {
   const [activities, setActivities] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
-  const [purchaseHistory, setPurchaseHistory] = useState<any[]>([]);
+  const [recentActivity] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchRecent() {
@@ -57,19 +57,11 @@ export default function RecentActivityFeed() {
         });
       });
       
-      // Fetch purchaseHistory for current user
-      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
-      let purchases: any[] = [];
-      if (userDoc.exists()) {
-        purchases = userDoc.data().purchaseHistory || [];
-      }
-      setPurchaseHistory(purchases);
-      
       // Get sold/listed items
       const soldListings = items.filter(item => item.userId === currentUser.uid);
       
       // Get bought items
-      const boughtItems = purchases.map(p => ({
+      const boughtItems = recentActivity.map(p => ({
         id: p.listingId,
         title: p.title,
         createdAt: p.date || new Date().toISOString(),
@@ -99,7 +91,7 @@ export default function RecentActivityFeed() {
       setLoading(false);
     }
     fetchRecent();
-  }, [currentUser]);
+  }, [currentUser, recentActivity]);
 
   useEffect(() => {
     async function fetchMissingSellerUsernames() {

@@ -15,18 +15,16 @@ export default function NewListingPage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [title, setTitle] = useState('');
-  const [price, setPrice] = useState('');
-  const [location, setLocation] = useState('');
   const [description, setDescription] = useState('');
+  const [price, setPrice] = useState('');
+  const [tags, setTags] = useState<string[]>([]);
   const [image, setImage] = useState<File | null>(null);
+  const [location, setLocation] = useState('');
+  const [tradeFor, setTradeFor] = useState('');
   const [imageUrl, setImageUrl] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [tradeFor, setTradeFor] = useState('');
-  const [suggestedPrice, setSuggestedPrice] = useState<number | null>(null);
-  const [suggestLoading, setSuggestLoading] = useState(false);
   const [showMapModal, setShowMapModal] = useState(false);
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(null);
 
@@ -41,30 +39,9 @@ export default function NewListingPage() {
   };
 
   const handleTagClick = (tag: string) => {
-    setSelectedTags((prev) =>
+    setTags((prev) =>
       prev.includes(tag) ? prev.filter((t) => t !== tag) : [...prev, tag]
     );
-  };
-
-  const fetchSuggestedPrice = async () => {
-    setSuggestLoading(true);
-    setSuggestedPrice(null);
-    try {
-      const response = await fetch('http://127.0.0.1:8000/suggest_price', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          title,
-          description,
-          category: selectedTags[0] || 'Other',
-        }),
-      });
-      const data = await response.json();
-      setSuggestedPrice(data.suggested_price);
-    } catch (err) {
-      setSuggestedPrice(null);
-    }
-    setSuggestLoading(false);
   };
 
   const handleMapClick = (e: google.maps.MapMouseEvent) => {
@@ -103,7 +80,7 @@ export default function NewListingPage() {
         date: new Date().toISOString().slice(0, 10),
         createdAt: serverTimestamp(),
         userId: currentUser?.uid,
-        tags: selectedTags,
+        tags,
         tradeFor,
         lat: marker?.lat || null,
         lng: marker?.lng || null,
@@ -153,7 +130,7 @@ export default function NewListingPage() {
                     <button
                       key={tag}
                       type="button"
-                      className={`tag-btn${selectedTags.includes(tag) ? ' selected' : ''}`}
+                      className={`tag-btn${tags.includes(tag) ? ' selected' : ''}`}
                       onClick={() => handleTagClick(tag)}
                     >
                       {tag}

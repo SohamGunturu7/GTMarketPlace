@@ -5,7 +5,7 @@ import './LandingPage.css';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { updateProfile } from 'firebase/auth';
 import { storage, db } from '../firebase/config';
-import { collection, query, where, onSnapshot, getDocs, limit, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, onSnapshot, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import RecentActivityFeed from './RecentActivityFeed';
 
 const sampleTags = [
@@ -57,7 +57,6 @@ function LandingPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [interests, setInterests] = useState<string[]>([]);
   const [wantedItems, setWantedItems] = useState<string[]>([]);
-  const [newInterest, setNewInterest] = useState('');
   const [newWantedItem, setNewWantedItem] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [notifCount, setNotifCount] = useState(0);
@@ -224,18 +223,6 @@ function LandingPage() {
   const handleMessages = () => {
     setShowDropdown(false);
     navigate('/messages');
-  };
-
-  const handleAddInterest = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (newInterest.trim() && !interests.includes(newInterest.trim())) {
-      setInterests([...interests, newInterest.trim()]);
-      setNewInterest('');
-    }
-  };
-
-  const handleRemoveInterest = (interestToRemove: string) => {
-    setInterests(interests.filter(interest => interest !== interestToRemove));
   };
 
   const handleAddWantedItem = async (e: React.FormEvent) => {
