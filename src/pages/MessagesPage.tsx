@@ -30,13 +30,13 @@ export default function MessagesPage() {
     return () => unsubscribe();
   }, [currentUser]);
 
-  // Fetch user info for all chat partners
+  // Fetch user info for all chat participants (both current user and other users)
   useEffect(() => {
     if (chatList.length === 0) return;
-    const otherUserIds = Array.from(new Set(chatList.map(chat => (chat.users || []).find((uid: string) => uid !== currentUser.uid)).filter(Boolean)));
-    if (otherUserIds.length === 0) return;
+    const allUserIds = Array.from(new Set(chatList.flatMap(chat => chat.users || [])));
+    if (allUserIds.length === 0) return;
     Promise.all(
-      otherUserIds.map(uid => getDoc(doc(db, 'users', uid)))
+      allUserIds.map(uid => getDoc(doc(db, 'users', uid)))
     ).then(snaps => {
       const map: any = {};
       snaps.forEach(snap => {
@@ -44,7 +44,7 @@ export default function MessagesPage() {
       });
       setUserMap(map);
     });
-  }, [chatList, currentUser]);
+  }, [chatList]);
 
   // If navigated from a listing, open the correct chat
   useEffect(() => {
@@ -216,18 +216,50 @@ export default function MessagesPage() {
               {messages.length === 0 ? (
                 <div className="no-messages">No conversation yet.</div>
               ) : (
-                messages.map((msg, idx) => (
-                  <div
-                    key={idx}
-                    className={`chat-bubble${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
-                    style={{ animationDelay: `${idx * 0.05}s` }}
-                  >
-                    {msg.text}
-                    <span className="chat-time">
-                      {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                ))
+                messages.map((msg, idx) => {
+                  const senderInfo = userMap[msg.from] || {};
+                  let avatarSrc = './techtower.jpeg';
+                  if (senderInfo.profilePicture) {
+                    avatarSrc = senderInfo.profilePicture;
+                  } else if (senderInfo.photoURL && senderInfo.photoURL.includes('googleusercontent.com')) {
+                    avatarSrc = senderInfo.photoURL;
+                  }
+                  return (
+                    <div
+                      key={idx}
+                      className={`chat-message-row${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
+                      style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 8, justifyContent: msg.from === currentUser?.uid ? 'flex-end' : 'flex-start' }}
+                    >
+                      {msg.from !== currentUser?.uid && (
+                        <img
+                          src={avatarSrc}
+                          alt={senderInfo.username || 'User'}
+                          className="chat-sender-avatar"
+                          style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 8, flexShrink: 0 }}
+                          onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                        />
+                      )}
+                      <div
+                        className={`chat-bubble${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
+                        style={{ animationDelay: `${idx * 0.05}s` }}
+                      >
+                        {msg.text}
+                        <span className="chat-time">
+                          {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                        </span>
+                      </div>
+                      {msg.from === currentUser?.uid && (
+                        <img
+                          src={avatarSrc}
+                          alt={senderInfo.username || 'User'}
+                          className="chat-sender-avatar"
+                          style={{ width: 30, height: 30, borderRadius: '50%', marginLeft: 8, flexShrink: 0 }}
+                          onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                        />
+                      )}
+                    </div>
+                  );
+                })
               )}
               <div ref={messagesEndRef} />
             </div>
