@@ -67,6 +67,7 @@ function LandingPage() {
   const [hasAnimated, setHasAnimated] = useState(false);
   const gridRef = useRef<HTMLDivElement | null>(null);
   const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Listen for unread messages
   useEffect(() => {
@@ -305,6 +306,16 @@ function LandingPage() {
       {showLogoutPopup && (
         <div className="logout-popup">Logged Out</div>
       )}
+      {showLoginPrompt && (
+        <div className="login-prompt-overlay" onClick={() => setShowLoginPrompt(false)}>
+          <div className="login-prompt-modal" onClick={e => e.stopPropagation()}>
+            <button className="login-prompt-close" onClick={() => setShowLoginPrompt(false)} aria-label="Close">&times;</button>
+            <span className="login-prompt-title">Log in required</span>
+            <p className="login-prompt-message">You must log in before using this feature.</p>
+            <button className="login-prompt-login-btn" onClick={() => navigate('/login')}>Log In</button>
+          </div>
+        </div>
+      )}
       <nav className="landing-nav glass-nav">
         <div className="landing-nav-left">
           <img src="./logo.png" alt="GT Logo" className="gt-logo" />
@@ -455,8 +466,20 @@ function LandingPage() {
           </h2>
           <p className="hero-tagline">The ultimate campus marketplace for Yellow Jackets. Buy, sell, and connect with your Georgia Tech community!</p>
           <div className="hero-buttons">
-            <button className="cta-button" onClick={() => currentUser ? navigate('/explore') : navigate('/login')}>Start Exploring</button>
-            <button className="new-listing-button" onClick={() => currentUser ? navigate('/new-listing') : navigate('/login')}>New Listing</button>
+            <button className="cta-button" onClick={() => {
+              if (currentUser) {
+                navigate('/explore');
+              } else {
+                setShowLoginPrompt(true);
+              }
+            }}>Start Exploring</button>
+            <button className="new-listing-button" onClick={() => {
+              if (currentUser) {
+                navigate('/new-listing');
+              } else {
+                setShowLoginPrompt(true);
+              }
+            }}>New Listing</button>
           </div>
         </div>
         <svg className="hero-wave" viewBox="0 0 1440 320">
@@ -508,13 +531,13 @@ function LandingPage() {
           }}
         >
           <div style={{ flex: 1, minWidth: 0, maxWidth: 520, height: '100%' }}>
-            <RecentActivityFeed />
+              <RecentActivityFeed />
           </div>
           <div style={{ flex: 1, minWidth: 0, maxWidth: 520, height: '100%' }}>
             <section className="dashboard-section" style={{ background: '#fffbe6', borderRadius: '1.5rem', boxShadow: '0 8px 32px rgba(179,163,105,0.10)', padding: '2.8rem 2.5rem 2.2rem 2.5rem', margin: 0, height: '100%', display: 'flex', flexDirection: 'column', alignItems: 'stretch', justifyContent: 'flex-start' }}>
               <h3 className="dashboard-title" style={{ color: '#003057', fontSize: '2.2rem', fontWeight: 900, marginBottom: '0.7rem', letterSpacing: '-1px', marginTop: 0, textAlign: 'left', position: 'relative' }}>
-                Dashboard
-              </h3>
+                  Dashboard
+                </h3>
               <div className="dashboard-inner-box" style={{ background: '#fffbe6', borderRadius: '1.2rem', boxShadow: '0 4px 24px rgba(179,163,105,0.13)', padding: '2.2rem 1.2rem', marginTop: 0, marginBottom: 0, width: '100%', boxSizing: 'border-box', flex: 1, display: 'flex', flexDirection: 'column', justifyContent: 'flex-start' }}>
                 {/* 2-on-1 row, 1-on-next-row infographic layout */}
                 <div style={{ width: '100%', margin: '0 0 0 0', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '1.5rem' }}>
@@ -536,10 +559,10 @@ function LandingPage() {
                       <span style={{ fontSize: 26, fontWeight: 900, color: '#232a34', marginBottom: 6 }}>{dashboardStats.bought}</span>
                       <span style={{ fontSize: 18, color: '#232a34', fontWeight: 700, marginTop: 2 }}>Bought</span>
                     </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </section>
+              </section>
           </div>
         </div>
       )}

@@ -14,6 +14,8 @@ export default function SupportPage() {
   const [reportText, setReportText] = useState('');
   const [reportStatus, setReportStatus] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
 
+  const API_URL = import.meta.env.VITE_API_URL || '';
+
   const scrollTo = (ref: React.RefObject<HTMLDivElement>) => {
     ref.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
   };
@@ -24,7 +26,7 @@ export default function SupportPage() {
     setReportStatus('sending');
     try {
       // Call the backend endpoint to send the report, including the current user's email
-      const response = await fetch('http://localhost:3000/api/report-issue', {
+      const response = await fetch(`${API_URL}/api/report-issue`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

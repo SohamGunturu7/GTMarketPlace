@@ -1803,7 +1803,7 @@
 @keyframes dynamicFeatureFadeIn {
   from { opacity: 0; transform: translateY(30px) scale(0.97); }
   to { opacity: 1; transform: translateY(0) scale(1); }
-}
+} 
 
 .logout-popup {
   position: fixed;
@@ -2467,4 +2467,177 @@
     margin-top: 0.7rem;
     margin-bottom: 2.2rem;
   }
+}
+
+/* Login Prompt Banner */
+.login-prompt-banner {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  background: linear-gradient(90deg, #003057 0%, #bfa14a 100%);
+  color: #fffbe6;
+  padding: 1rem;
+  z-index: 1000;
+  animation: slideDown 0.3s ease-out;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.login-prompt-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.login-prompt-content span {
+  font-size: 1.1rem;
+  font-weight: 600;
+}
+
+.login-prompt-content button {
+  background: #fffbe6;
+  color: #003057;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 9999px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, background 0.2s;
+}
+
+.login-prompt-content button:hover {
+  transform: translateY(-2px);
+  background: #fff;
+}
+
+.login-prompt-content button:last-child {
+  background: transparent;
+  color: #fffbe6;
+  border: 2px solid #fffbe6;
+}
+
+.login-prompt-content button:last-child:hover {
+  background: rgba(255, 251, 230, 0.1);
+}
+
+@keyframes slideDown {
+  from {
+    transform: translateY(-100%);
+  }
+  to {
+    transform: translateY(0);
+  }
 } 
+
+/* Login Prompt Modal Overlay */
+.login-prompt-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 48, 87, 0.45);
+  z-index: 2000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: fadeInOverlay 0.2s;
+}
+
+@keyframes fadeInOverlay {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.login-prompt-modal {
+  background: #fff;
+  border-radius: 1.3rem;
+  box-shadow: 0 8px 32px rgba(0,48,87,0.18), 0 2px 8px rgba(179,163,105,0.10);
+  padding: 2.5rem 2.2rem 2rem 2.2rem;
+  min-width: 320px;
+  max-width: 95vw;
+  width: 100%;
+  max-width: 400px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  animation: popInModal 0.22s cubic-bezier(.4,0,.2,1);
+}
+
+@keyframes popInModal {
+  from { opacity: 0; transform: scale(0.95) translateY(30px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.login-prompt-close {
+  position: absolute;
+  top: 1.1rem;
+  right: 1.1rem;
+  background: none;
+  border: none;
+  font-size: 2rem;
+  color: #003057;
+  cursor: pointer;
+  z-index: 2;
+  transition: color 0.18s;
+  line-height: 1;
+}
+.login-prompt-close:hover {
+  color: #bfa14a;
+}
+
+.login-prompt-title {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: #003057;
+  margin-bottom: 0.7rem;
+  text-align: center;
+  letter-spacing: -0.5px;
+}
+
+.login-prompt-message {
+  color: #232a34;
+  font-size: 1.08rem;
+  margin-bottom: 2.1rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.login-prompt-login-btn {
+  background: linear-gradient(90deg, #003057 0%, #bfa14a 100%);
+  color: #fffbe6;
+  border: none;
+  border-radius: 9999px;
+  padding: 0.9rem 2.5rem;
+  font-size: 1.13rem;
+  font-weight: 700;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,48,87,0.07);
+  transition: background 0.18s, color 0.18s, transform 0.13s;
+  outline: none;
+  margin-top: 0.2rem;
+}
+.login-prompt-login-btn:hover {
+  background: linear-gradient(90deg, #bfa14a 0%, #003057 100%);
+  color: #003057;
+  transform: scale(1.05);
+}
+
+@media (max-width: 600px) {
+  .login-prompt-modal {
+    min-width: 0;
+    max-width: 98vw;
+    padding: 1.2rem 0.7rem 1.2rem 0.7rem;
+  }
+  .login-prompt-title {
+    font-size: 1.1rem;
+  }
+  .login-prompt-message {
+    font-size: 0.98rem;
+  }
+  .login-prompt-login-btn {
+    font-size: 1rem;
+    padding: 0.7rem 1.5rem;
+  }
+}

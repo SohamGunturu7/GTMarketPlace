@@ -16,7 +16,12 @@ const PORT = process.env.PORT || 3000;
 
 // Enable CORS for the frontend
 app.use(cors({
-  origin: 'http://localhost:5173', // Vite's default port
+  origin: [
+    'http://localhost:5173',
+    'https://gtmarketplace.org',
+    'https://www.gtmarketplace.org',
+    'https://d1k7i4r47gycm.cloudfront.net'
+  ],
   methods: ['POST', 'GET', 'OPTIONS'],
   allowedHeaders: ['Content-Type']
 }));
@@ -44,7 +49,7 @@ transporter.verify(function(error, success) {
   } else {
     console.log('Server is ready to send emails');
   }
-});
+});https://d1k7i4r47gycm.cloudfront.net/support
 
 // Endpoint to handle issue reports
 app.post('/api/report-issue', async (req, res) => {
@@ -106,6 +111,10 @@ app.use((err, req, res, next) => {
     error: 'Internal server error',
     details: err.message
   });
+});
+
+app.get('/', (req, res) => {
+  res.send('GT Marketplace Backend is running!');
 });
 
 app.listen(PORT, () => {

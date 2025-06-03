@@ -120,96 +120,112 @@ function LoginPage() {
 
   if (showCreateAccount) {
     return (
-      <div className="login-background">
-        <div className="login-glass-card">
-          <div className="login-title gold-gradient-title">Create Account</div>
-          <form className="login-form" onSubmit={e => { e.preventDefault(); handleSubmitCreateAccount(); }}>
-            <input 
-              type="email" 
-              placeholder="Email" 
-              className="login-input"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-            />
-            <input 
-              type="text" 
-              placeholder="Username" 
-              className="login-input"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              required
-            />
-            <input 
-              type="password" 
-              placeholder="Password" 
-              className="login-input"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-            />
-            <input 
-              type="password" 
-              placeholder="Confirm Password" 
-              className="login-input"
-              value={confirmPassword} 
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              required
-            />
-            <label className="profile-pic-label">Upload Profile Picture</label>
-            <label htmlFor="profile-pic-upload" className="profile-pic-upload-btn">
-              {profilePicFile ? profilePicFile.name : 'Choose File'}
-            </label>
-            <input
-              id="profile-pic-upload"
-              type="file"
-              accept="image/*"
-              style={{ display: 'none' }}
-              onChange={e => setProfilePicFile(e.target.files?.[0] || null)}
-            />
-            <div className="button-container spaced">
-              <button type="submit" className="login-button">Create Account</button>
-              <button type="button" className="login-button" onClick={handleCreateAccount}>Back to Login</button>
-            </div>
-            {error && <p className="error-message">{error}</p>}
-            {message && <p className="message">{message}</p>}
-          </form>
+      <div className="login-split-bg">
+        <div className="login-split-card">
+          <div className="login-split-left">
+            <img src="./techtower.jpeg" alt="Tech Tower" className="login-illustration" />
+            <div className="login-welcome-title">Welcome to GT Marketplace</div>
+            <div className="login-welcome-desc">Create your account to buy, sell, and connect with the Georgia Tech community!</div>
+          </div>
+          <div className="login-split-right">
+            <div className="login-title gold-gradient-title">Create Account</div>
+            <form className="login-form" onSubmit={e => { e.preventDefault(); handleSubmitCreateAccount(); }}>
+              <input 
+                type="email" 
+                placeholder="Email" 
+                className="login-input"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+              <input 
+                type="text" 
+                placeholder="Username" 
+                className="login-input"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                required
+              />
+              <input 
+                type="password" 
+                placeholder="Password" 
+                className="login-input"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+              <input 
+                type="password" 
+                placeholder="Confirm Password" 
+                className="login-input"
+                value={confirmPassword} 
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                required
+              />
+              <label className="profile-pic-label">Upload Profile Picture</label>
+              <label htmlFor="profile-pic-upload" className="profile-pic-upload-btn">
+                {profilePicFile ? profilePicFile.name : 'Choose File'}
+              </label>
+              <input
+                id="profile-pic-upload"
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={e => setProfilePicFile(e.target.files?.[0] || null)}
+              />
+              <div className="button-row-left">
+                <button type="submit" className="login-button cream-btn">Create Account</button>
+                <button type="button" className="login-button cream-btn" onClick={() => setShowCreateAccount(false)}>Back to Login</button>
+              </div>
+              {error && <p className="error-message">{error}</p>}
+              {message && <p className="message">{message}</p>}
+            </form>
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="login-background">
-      <div className="login-glass-card">
-        <div className="login-title gold-gradient-title">GT Marketplace</div>
-        <form className="login-form" onSubmit={handleLogin}>
-          <input 
-            type="email" 
-            placeholder="Email" 
-            className = "login-input"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input 
-            type="password" 
-            placeholder="Password" 
-            className = "login-input"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-          />
-          {error && <p className="error-message">{error}</p>}
-          <button type="submit" className="login-button">Sign In</button>
-        </form>
-        <button className="login-google" onClick={handleGoogleLogin}>
-          <img src="./google.png" alt="Google" className="login-icon" style={{ marginRight: 10, verticalAlign: 'middle' }} />
-          Login with Google
-        </button>
-        <div className="login-options">
-          <a href="#" className="login-link" onClick={() => navigate('/reset-password')}>Forgot Password?</a>
-          <a href="#" className="login-link" onClick={handleCreateAccount}>Create Account</a>
+    <div className="login-split-bg">
+      <div className="login-split-card">
+        <div className="login-split-left">
+          <img src="./techtower.jpeg" alt="Tech Tower" className="login-illustration" />
+          <div className="login-welcome-title">Welcome to GT Marketplace</div>
+          <div className="login-welcome-desc">The ultimate campus marketplace for Yellow Jackets. Buy, sell, and connect with your Georgia Tech community!</div>
+        </div>
+        <div className="login-split-right">
+          <div className="login-title gold-gradient-title">GT Marketplace</div>
+          <form className="login-form" onSubmit={handleLogin}>
+            <input 
+              type="email" 
+              placeholder="Email" 
+              className = "login-input"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+            />
+            <input 
+              type="password" 
+              placeholder="Password" 
+              className = "login-input"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+            />
+            {error && <p className="error-message">{error}</p>}
+            <button type="submit" className="login-button">Sign In</button>
+          </form>
+          <div className="google-btn-row">
+            <button className="login-google" onClick={handleGoogleLogin}>
+              <img src="./google.png" alt="Google" className="login-icon" />
+              <span className="google-btn-text">Login with Google</span>
+            </button>
+          </div>
+          <div className="login-options">
+            <a href="#" className="login-link" onClick={() => navigate('/reset-password')}>Forgot Password?</a>
+            <a href="#" className="login-link" onClick={handleCreateAccount}>Create Account</a>
+          </div>
         </div>
       </div>
     </div>
