@@ -59,6 +59,10 @@ export default function NewListingPage() {
       setError('Please fill in all fields.');
       return;
     }
+    if (!marker) {
+      setError('Please set a coordinate pin for your item on the map.');
+      return;
+    }
     setLoading(true);
     try {
       let url = './tech-tower.png';

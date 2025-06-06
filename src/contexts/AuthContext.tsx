@@ -44,20 +44,34 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
     let profilePictureUrl = '';
+    
     if (file) {
       const storageRef = ref(storage, `profile-pictures/${user.uid}`);
       await uploadBytes(storageRef, file);
       profilePictureUrl = await getDownloadURL(storageRef);
-      await updateProfile(user, { displayName: username, photoURL: profilePictureUrl });
     } else {
-      await updateProfile(user, { displayName: username });
+      // Use Tech Tower as default profile picture
+      const defaultImageRef = ref(storage, 'default-profile-pictures/techtower.jpeg');
+      try {
+        // Check if default image already exists in storage
+        await getDownloadURL(defaultImageRef);
+        profilePictureUrl = await getDownloadURL(defaultImageRef);
+      } catch (error) {
+        // If default image doesn't exist, upload it
+        const response = await fetch('/techtower.jpeg');
+        const blob = await response.blob();
+        await uploadBytes(defaultImageRef, blob);
+        profilePictureUrl = await getDownloadURL(defaultImageRef);
+      }
     }
+    
+    await updateProfile(user, { displayName: username, photoURL: profilePictureUrl });
     await setDoc(doc(db, 'users', user.uid), {
       email,
       username,
       createdAt: new Date().toISOString(),
       lastLogin: new Date().toISOString(),
-      ...(profilePictureUrl && { profilePicture: profilePictureUrl }),
+      profilePicture: profilePictureUrl,
     });
   }
 

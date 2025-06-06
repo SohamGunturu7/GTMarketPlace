@@ -154,127 +154,131 @@ export default function MessagesPage() {
           <button className="messages-nav-button" onClick={() => navigate('/')}>Home</button>
         </div>
       </nav>
-      <div className="messages-container single-chat">
-        {!activeChat ? (
-          <div className="chat-grid-bg">
-            <h2 className="chat-grid-title">Your Conversations</h2>
-            <div className="chat-grid">
-              {chatList.length === 0 && <div className="no-messages">No conversations yet.</div>}
-              {chatList.map(chat => {
-                const userInfo = getOtherUserInfo(chat);
-                const unreadCount = chat.messages?.filter((msg: any) => 
-                  msg.from !== currentUser.uid && !msg.readBy?.includes(currentUser.uid)
-                ).length || 0;
-                
-                return (
-                  <div
-                    key={chat.id}
-                    className="chat-grid-item"
-                    onClick={() => setActiveChat(chat)}
-                  >
-                    <div className="chat-list-info">
-                      <div className="chat-list-title">
-                        {chat.listingTitle || 'Chat'}
-                        {unreadCount > 0 && (
-                          <span className="chat-unread-badge">{unreadCount}</span>
+      <div className="messages-main-layout">
+        {/* Left: Chat Area */}
+        <div className="messages-main">
+          {activeChat ? (
+            <main className="chat-area animated-fade-in">
+              <div className="chat-header">
+                <img
+                  src={(() => {
+                    const userInfo = getOtherUserInfo(activeChat);
+                    if (userInfo.profilePicture) return userInfo.profilePicture;
+                    if (userInfo.photoURL && userInfo.photoURL.includes('googleusercontent.com')) return userInfo.photoURL;
+                    return './techtower.jpeg';
+                  })()}
+                  alt={getOtherUserInfo(activeChat).username || 'User'}
+                  className="chat-list-avatar"
+                  style={{ width: 44, height: 44, marginRight: 16 }}
+                  onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                />
+                <div>
+                  <div className="chat-listing">{activeChat.listingTitle || 'Chat'}</div>
+                  <div className="chat-partner">{getOtherUserInfo(activeChat).username ? `with ${getOtherUserInfo(activeChat).username}` : 'with Loading...'}</div>
+                </div>
+              </div>
+              <div className="chat-messages">
+                {messages.length === 0 ? (
+                  <div className="no-messages">No conversation yet.</div>
+                ) : (
+                  messages.map((msg, idx) => {
+                    const senderInfo = userMap[msg.from] || {};
+                    let avatarSrc = './techtower.jpeg';
+                    if (senderInfo.profilePicture) {
+                      avatarSrc = senderInfo.profilePicture;
+                    } else if (senderInfo.photoURL && senderInfo.photoURL.includes('googleusercontent.com')) {
+                      avatarSrc = senderInfo.photoURL;
+                    }
+                    return (
+                      <div
+                        key={idx}
+                        className={`chat-message-row${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
+                        style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 8, justifyContent: msg.from === currentUser?.uid ? 'flex-end' : 'flex-start' }}
+                      >
+                        {msg.from !== currentUser?.uid && (
+                          <img
+                            src={avatarSrc}
+                            alt={senderInfo.username || 'User'}
+                            className="chat-sender-avatar"
+                            style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 8, flexShrink: 0 }}
+                            onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                          />
+                        )}
+                        <div
+                          className={`chat-bubble${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
+                          style={{ animationDelay: `${idx * 0.05}s` }}
+                        >
+                          {msg.text}
+                          <span className="chat-time">
+                            {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        </div>
+                        {msg.from === currentUser?.uid && (
+                          <img
+                            src={avatarSrc}
+                            alt={senderInfo.username || 'User'}
+                            className="chat-sender-avatar"
+                            style={{ width: 30, height: 30, borderRadius: '50%', marginLeft: 8, flexShrink: 0 }}
+                            onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                          />
                         )}
                       </div>
-                      <div className="chat-list-partner">{userInfo.username ? `with ${userInfo.username}` : 'with User'}</div>
-                      <div className="chat-list-last">
-                        {chat.messages && chat.messages.length > 0
-                          ? chat.messages[chat.messages.length - 1].text
-                          : 'No messages yet.'}
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
-        ) : (
-          <main className="chat-area">
-            <div className="chat-header">
-              <img
-                src={(() => {
-                  const userInfo = getOtherUserInfo(activeChat);
-                  if (userInfo.profilePicture) return userInfo.profilePicture;
-                  if (userInfo.photoURL && userInfo.photoURL.includes('googleusercontent.com')) return userInfo.photoURL;
-                  return './techtower.jpeg';
-                })()}
-                alt={getOtherUserInfo(activeChat).username || 'User'}
-                className="chat-list-avatar"
-                style={{ width: 44, height: 44, marginRight: 16 }}
-                onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
-              />
-              <div>
-                <div className="chat-listing">{activeChat.listingTitle || 'Chat'}</div>
-                <div className="chat-partner">{getOtherUserInfo(activeChat).username ? `with ${getOtherUserInfo(activeChat).username}` : 'with User'}</div>
+                    );
+                  })
+                )}
+                <div ref={messagesEndRef} />
               </div>
-              <button className="messages-nav-button" onClick={() => setActiveChat(null)} style={{marginLeft: 'auto'}}>Back to Chats</button>
+              <div className="chat-input-bar">
+                <input
+                  type="text"
+                  placeholder="Type your message..."
+                  value={message}
+                  onChange={e => setMessage(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && handleSend()}
+                />
+                <button className="send-btn" onClick={handleSend}>Send</button>
+              </div>
+            </main>
+          ) : (
+            <div className="empty-chat-area animated-fade-in">
+              <img src="./techtower.jpeg" alt="GT Tech Tower" className="empty-chat-illustration" />
+              <div className="empty-chat-message">Select a conversation to start chatting!<br/>Welcome to GT Marketplace Messages.</div>
             </div>
-            <div className="chat-messages">
-              {messages.length === 0 ? (
-                <div className="no-messages">No conversation yet.</div>
-              ) : (
-                messages.map((msg, idx) => {
-                  const senderInfo = userMap[msg.from] || {};
-                  let avatarSrc = './techtower.jpeg';
-                  if (senderInfo.profilePicture) {
-                    avatarSrc = senderInfo.profilePicture;
-                  } else if (senderInfo.photoURL && senderInfo.photoURL.includes('googleusercontent.com')) {
-                    avatarSrc = senderInfo.photoURL;
-                  }
-                  return (
-                    <div
-                      key={idx}
-                      className={`chat-message-row${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
-                      style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 8, justifyContent: msg.from === currentUser?.uid ? 'flex-end' : 'flex-start' }}
-                    >
-                      {msg.from !== currentUser?.uid && (
-                        <img
-                          src={avatarSrc}
-                          alt={senderInfo.username || 'User'}
-                          className="chat-sender-avatar"
-                          style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 8, flexShrink: 0 }}
-                          onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
-                        />
-                      )}
-                      <div
-                        className={`chat-bubble${msg.from === currentUser?.uid ? ' from-me' : ' received'}`}
-                        style={{ animationDelay: `${idx * 0.05}s` }}
-                      >
-                        {msg.text}
-                        <span className="chat-time">
-                          {new Date(msg.time).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                        </span>
-                      </div>
-                      {msg.from === currentUser?.uid && (
-                        <img
-                          src={avatarSrc}
-                          alt={senderInfo.username || 'User'}
-                          className="chat-sender-avatar"
-                          style={{ width: 30, height: 30, borderRadius: '50%', marginLeft: 8, flexShrink: 0 }}
-                          onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
-                        />
-                      )}
-                    </div>
-                  );
-                })
-              )}
-              <div ref={messagesEndRef} />
-            </div>
-            <div className="chat-input-bar">
-              <input
-                type="text"
-                placeholder="Type your message..."
-                value={message}
-                onChange={e => setMessage(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && handleSend()}
-              />
-              <button className="send-btn" onClick={handleSend}>Send</button>
-            </div>
-          </main>
-        )}
+          )}
+        </div>
+        {/* Right: Sidebar */}
+        <aside className="messages-sidebar animated-slide-in">
+          <div className="sidebar-title">Your Conversations</div>
+          <div className="sidebar-chat-list">
+            {chatList.length === 0 && <div className="no-messages">No conversations yet.</div>}
+            {chatList.map(chat => {
+              const userInfo = getOtherUserInfo(chat);
+              const unreadCount = chat.messages?.filter((msg: any) => 
+                msg.from !== currentUser.uid && !msg.readBy?.includes(currentUser.uid)
+              ).length || 0;
+              return (
+                <div
+                  key={chat.id}
+                  className={`sidebar-chat-item${activeChat && activeChat.id === chat.id ? ' active' : ''}`}
+                  onClick={() => setActiveChat(chat)}
+                >
+                  <img
+                    src={userInfo.profilePicture || userInfo.photoURL || './techtower.jpeg'}
+                    alt={userInfo.username || 'User'}
+                    className="sidebar-avatar"
+                    onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                  />
+                  <div className="sidebar-chat-info">
+                    <div className="sidebar-chat-title">{chat.listingTitle || 'Chat'}</div>
+                    <div className="sidebar-chat-partner">{userInfo.username ? `with ${userInfo.username}` : 'with User'}</div>
+                    <div className="sidebar-chat-last">{chat.messages && chat.messages.length > 0 ? chat.messages[chat.messages.length - 1].text : 'No messages yet.'}</div>
+                  </div>
+                  {unreadCount > 0 && <span className="sidebar-unread-badge">{unreadCount}</span>}
+                </div>
+              );
+            })}
+          </div>
+        </aside>
       </div>
     </div>
   );
