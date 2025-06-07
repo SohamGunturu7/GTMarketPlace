@@ -227,74 +227,68 @@ export default function ExplorePage() {
                     }}
                   />
                   <span className="explore-price-tag">${listing.price}</span>
+                  {listing.quantity && (
+                    <span className="explore-quantity-tag">Qty: {listing.quantity}</span>
+                  )}
                 </div>
 
                 <div className="explore-listing-details">
-                  {/* actions */}
-                  <div className="explore-listing-actions">
-                    <button
-                      className="message-btn"
-                      onClick={() =>
-                        setShowTradeFor(p => ({ ...p, [listing.id]: !p[listing.id] }))
-                      }
-                    >
-                      Trade
-                    </button>
-                    <button className="message-btn" onClick={() => {
-                      if (!currentUser || !listing.userId || currentUser.uid === listing.userId) return;
-                      navigate('/messages', {
-                        state: {
-                          listingId: listing.id,
-                          recipientId: listing.userId,
-                          senderId: currentUser.uid,
-                          listingTitle: listing.title,
-                        }
-                      });
-                    }}>
-                      Message
-                    </button>
-                    {currentUser?.uid === listing.userId && (
+                  <div className="explore-listing-header-row">
+                    <h4>{listing.title}</h4>
+                    <div className="explore-listing-actions-top">
                       <button
                         className="message-btn"
-                        style={{ marginLeft: 10 }}
-                        onClick={() => {
-                          if (window.confirm('Delete this listing?'))
-                            deleteDoc(doc(db, 'listings', listing.id));
+                        onClick={() =>
+                          setShowTradeFor(p => ({ ...p, [listing.id]: !p[listing.id] }))
+                        }
+                      >
+                        Trade
+                      </button>
+                      <button className="message-btn" onClick={() => {
+                        if (!currentUser || !listing.userId || currentUser.uid === listing.userId) return;
+                        navigate('/messages', {
+                          state: {
+                            listingId: listing.id,
+                            recipientId: listing.userId,
+                            senderId: currentUser.uid,
+                            listingTitle: listing.title,
+                          }
+                        });
+                      }}>
+                        Message
+                      </button>
+                    </div>
+                  </div>
+                  <div className="explore-listing-quantity">Quantity: {listing.quantity ?? 1}</div>
+                  <p className="explore-listing-desc">{listing.description}</p>
+                  <div className="explore-listing-bottom-row">
+                    <div className="explore-listing-meta">
+                      <span className="explore-listing-date">{formatDate(listing.createdAt)}</span>
+                      <span>{listing.location}</span>
+                      <div className="explore-tags">
+                        {listing.tags?.map((tag: string) => (
+                          <span className="explore-tag" key={tag}>{tag}</span>
+                        ))}
+                      </div>
+                    </div>
+                    {currentUser?.uid === listing.userId && (
+                      <button
+                        className="message-btn explore-delete-btn"
+                        onClick={async () => {
+                          if (window.confirm('Delete one item from this listing?')) {
+                            if (listing.quantity && listing.quantity > 1) {
+                              await updateDoc(doc(db, 'listings', listing.id), {
+                                quantity: listing.quantity - 1
+                              });
+                            } else {
+                              await deleteDoc(doc(db, 'listings', listing.id));
+                            }
+                          }
                         }}
                       >
                         Delete
                       </button>
                     )}
-                  </div>
-
-                  <h4>{listing.title}</h4>
-                  <p className="explore-listing-desc">{listing.description}</p>
-
-                  {showTradeFor[listing.id] && (
-                    <div
-                      className="trade-dropdown"
-                      ref={el => (tradeDropdownRefs.current[listing.id] = el)}
-                    >
-                      <div className="trade-dropdown-title">Willing to Trade For:</div>
-                      <div className="trade-dropdown-tags">
-                        {listing.tradeFor?.split(',').map((t: string, i: number) => (
-                          <span className="explore-tradefor-tag" key={i}>{t.trim()}</span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  <div className="explore-tags">
-                    {listing.tags?.map((tag: string) => (
-                      <span className="explore-tag" key={tag}>{tag}</span>
-                    ))}
-                  </div>
-
-                  <div className="explore-listing-meta">
-                    <div className="explore-listing-info">
-                      <span>{listing.location}</span>
-                      <span className="explore-listing-date">{formatDate(listing.createdAt)}</span>
-                    </div>
                   </div>
                 </div>
               </div>

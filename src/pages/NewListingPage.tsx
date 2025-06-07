@@ -27,6 +27,7 @@ export default function NewListingPage() {
   const [success, setSuccess] = useState('');
   const [showMapModal, setShowMapModal] = useState(false);
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(null);
+  const [quantity, setQuantity] = useState(1);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -88,6 +89,7 @@ export default function NewListingPage() {
         tradeFor,
         lat: marker?.lat || null,
         lng: marker?.lng || null,
+        quantity,
       });
       setSuccess('Listing created successfully!');
       setTimeout(() => navigate('/my-listings'), 1200);
@@ -217,6 +219,18 @@ export default function NewListingPage() {
                     id="description"
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
+                    required
+                    placeholder=" "
+                  />
+                </div>
+                <div className="form-group">
+                  <label htmlFor="quantity">Quantity</label>
+                  <input
+                    type="number"
+                    id="quantity"
+                    value={quantity}
+                    onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
+                    min={1}
                     required
                     placeholder=" "
                   />
