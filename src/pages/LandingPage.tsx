@@ -321,6 +321,16 @@ function LandingPage() {
           <img src="./logo.png" alt="GT Logo" className="gt-logo" />
           <h1 className="landing-title">GT Marketplace</h1>
         </div>
+        <div className="landing-nav-center">
+          {currentUser && (
+            <div className="nav-links">
+              <span className="nav-link" onClick={() => navigate('/explore')}>Explore</span>
+              <span className="nav-link" onClick={() => navigate('/messages')}>Messages</span>
+              <span className="nav-link" onClick={() => navigate('/purchase-history')}>Purchase History</span>
+              <span className="nav-link" onClick={() => navigate('/my-listings')}>My Listings</span>
+            </div>
+          )}
+        </div>
         <div className="landing-nav-right">
           {currentUser ? (
             <div className="user-section" onClick={handleProfileClick} style={{ position: 'relative' }}>
@@ -330,11 +340,8 @@ function LandingPage() {
                 <span className="notif-badge">{notifCount}</span>
               )}
               {(showDropdown || dropdownClosing) && (
-                <div className={`profile-dropdown${dropdownClosing ? ' closing' : ''}`}>
+                <div className={`profile-dropdown${dropdownClosing ? ' closing' : ''}`}> 
                   <button onClick={handleEditProfile}>Edit Profile</button>
-                  <button onClick={handleMyListings}>My Listings</button>
-                  <button onClick={handlePurchaseHistory}>Purchase History</button>
-                  <button onClick={handleMessages}>Messages</button>
                   <button onClick={handleLogout}>Logout</button>
                 </div>
               )}
