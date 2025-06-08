@@ -1,9 +1,13 @@
+// Needed for JSX and react-datepicker compatibility
+import React from 'react';
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase/config';
 import { collection, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import './MessagesPage.css';
+import ReactDatePicker from 'react-datepicker';
+import 'react-datepicker/dist/react-datepicker.css';
 
 export default function MessagesPage() {
   const navigate = useNavigate();
@@ -16,6 +20,13 @@ export default function MessagesPage() {
   const [messages, setMessages] = useState<any[]>([]);
   const [message, setMessage] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [meetupDate, setMeetupDate] = useState<Date | null>(null);
+  const [meetupTime, setMeetupTime] = useState('');
+  const [meetupLocation, setMeetupLocation] = useState('');
+  const [scheduleError, setScheduleError] = useState('');
+  const [respondedMeetupIds, setRespondedMeetupIds] = useState<string[]>([]);
+  const [rescheduleContext, setRescheduleContext] = useState<any>(null);
 
   // Load all chats for the current user
   useEffect(() => {
@@ -142,6 +153,128 @@ export default function MessagesPage() {
   const getOtherUserId = (chat: any) => (chat.users || []).find((uid: string) => uid !== currentUser.uid);
   const getOtherUserInfo = (chat: any) => userMap[getOtherUserId(chat)] || {};
 
+  const handleSendSchedule = async () => {
+    if (!meetupDate || !meetupTime || !meetupLocation.trim()) {
+      setScheduleError('Please fill out all fields.');
+      return;
+    }
+    if (!activeChat || !currentUser) return;
+    const chatRef = doc(db, 'chats', activeChat.id);
+    let msgObj;
+    if (rescheduleContext) {
+      // This is a reschedule
+      msgObj = {
+        from: currentUser.uid,
+        text: `Meetup rescheduled: ${meetupDate.toLocaleDateString()} at ${meetupTime}, Location: ${meetupLocation}`,
+        time: new Date().toISOString(),
+        readBy: [currentUser.uid],
+        type: 'schedule',
+        schedule: {
+          date: meetupDate.toISOString(),
+          time: meetupTime,
+          location: meetupLocation
+        },
+        rescheduledFrom: rescheduleContext.schedule
+      };
+      // Also send a meetup-action message to mark the old one as rescheduled
+      const actionMsg = {
+        from: currentUser.uid,
+        text: `Meetup was rescheduled by ${currentUser.displayName || 'User'}.`,
+        time: new Date().toISOString(),
+        readBy: [currentUser.uid],
+        type: 'meetup-action',
+        action: 'reschedule',
+        relatedSchedule: rescheduleContext.schedule
+      };
+      await updateDoc(chatRef, {
+        messages: arrayUnion(actionMsg, msgObj),
+      });
+    } else {
+      // Normal schedule
+      msgObj = {
+        from: currentUser.uid,
+        text: `Meetup proposed: ${meetupDate.toLocaleDateString()} at ${meetupTime}, Location: ${meetupLocation}`,
+        time: new Date().toISOString(),
+        readBy: [currentUser.uid],
+        type: 'schedule',
+        schedule: {
+          date: meetupDate.toISOString(),
+          time: meetupTime,
+          location: meetupLocation
+        }
+      };
+      const chatSnap = await getDoc(chatRef);
+      if (!chatSnap.exists()) {
+        await setDoc(chatRef, {
+          listingId: activeChat.listingId,
+          users: activeChat.users,
+          listingTitle: activeChat.listingTitle,
+          messages: [msgObj],
+        });
+      } else {
+        await updateDoc(chatRef, {
+          messages: arrayUnion(msgObj),
+        });
+      }
+    }
+    setShowScheduleModal(false);
+    setMeetupDate(null);
+    setMeetupTime('');
+    setMeetupLocation('');
+    setScheduleError('');
+    setRescheduleContext(null);
+    setTimeout(() => messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }), 100);
+  };
+
+  // Add handler for meetup actions
+  function handleMeetupAction(action: 'accept' | 'reschedule' | 'decline', msg: any) {
+    if (!activeChat || !currentUser) return;
+    setRespondedMeetupIds(prev => [...prev, msg.time]);
+    if (action === 'reschedule') {
+      setRescheduleContext(msg);
+      setShowScheduleModal(true);
+      return;
+    }
+    let text = '';
+    if (action === 'accept') {
+      text = `Meetup accepted for ${new Date(msg.schedule.date).toLocaleDateString()} at ${msg.schedule.time}, Location: ${msg.schedule.location}`;
+    } else if (action === 'decline') {
+      text = `Meetup declined.`;
+    }
+    const chatRef = doc(db, 'chats', activeChat.id);
+    const msgObj = {
+      from: currentUser.uid,
+      text,
+      time: new Date().toISOString(),
+      readBy: [currentUser.uid],
+      type: 'meetup-action',
+      action,
+      relatedSchedule: msg.schedule
+    };
+    updateDoc(chatRef, {
+      messages: arrayUnion(msgObj),
+    });
+  }
+
+  // Helper to get a unique key for a schedule proposal
+  function getScheduleKey(schedule: any, from: string) {
+    return `${from}|${schedule.date}|${schedule.time}|${schedule.location}`;
+  }
+
+  // Helper to get the status of a meetup proposal
+  function getMeetupStatus(msg: any) {
+    // Use a unique key for the proposal
+    const key = getScheduleKey(msg.schedule, msg.from);
+    // Find the latest meetup-action message that references this schedule (by key)
+    const related = messages.filter((m: any) => m.type === 'meetup-action' && m.relatedSchedule && getScheduleKey(m.relatedSchedule, msg.from) === key);
+    if (related.length === 0) return 'Pending';
+    const last = related[related.length - 1];
+    if (last.action === 'accept') return 'Accepted';
+    if (last.action === 'decline') return 'Declined';
+    if (last.action === 'reschedule') return 'Rescheduled';
+    return 'Pending';
+  }
+
   // UI
   return (
     <div className="messages-page">
@@ -160,21 +293,28 @@ export default function MessagesPage() {
           {activeChat ? (
             <main className="chat-area animated-fade-in">
               <div className="chat-header">
-                <img
-                  src={(() => {
-                    const userInfo = getOtherUserInfo(activeChat);
-                    if (userInfo.profilePicture) return userInfo.profilePicture;
-                    if (userInfo.photoURL && userInfo.photoURL.includes('googleusercontent.com')) return userInfo.photoURL;
-                    return './techtower.jpeg';
-                  })()}
-                  alt={getOtherUserInfo(activeChat).username || 'User'}
-                  className="chat-list-avatar"
-                  style={{ width: 44, height: 44, marginRight: 16 }}
-                  onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
-                />
-                <div>
-                  <div className="chat-listing">{activeChat.listingTitle || 'Chat'}</div>
-                  <div className="chat-partner">{getOtherUserInfo(activeChat).username ? `with ${getOtherUserInfo(activeChat).username}` : 'with Loading...'}</div>
+                <div className="chat-header-left">
+                  <img
+                    src={(() => {
+                      const userInfo = getOtherUserInfo(activeChat);
+                      if (userInfo.profilePicture) return userInfo.profilePicture;
+                      if (userInfo.photoURL && userInfo.photoURL.includes('googleusercontent.com')) return userInfo.photoURL;
+                      return './techtower.jpeg';
+                    })()}
+                    alt={getOtherUserInfo(activeChat).username || 'User'}
+                    className="chat-list-avatar"
+                    style={{ width: 44, height: 44, marginRight: 16 }}
+                    onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                  />
+                  <div>
+                    <div className="chat-listing">{activeChat.listingTitle || 'Chat'}</div>
+                    <div className="chat-partner">{getOtherUserInfo(activeChat).username ? `with ${getOtherUserInfo(activeChat).username}` : 'with Loading...'}</div>
+                  </div>
+                </div>
+                <div className="chat-header-right">
+                  <button className="schedule-meetup-btn" onClick={() => setShowScheduleModal(true)}>
+                    Schedule Meetup
+                  </button>
                 </div>
               </div>
               <div className="chat-messages">
@@ -188,6 +328,52 @@ export default function MessagesPage() {
                       avatarSrc = senderInfo.profilePicture;
                     } else if (senderInfo.photoURL && senderInfo.photoURL.includes('googleusercontent.com')) {
                       avatarSrc = senderInfo.photoURL;
+                    }
+                    // Meetup scheduling message UI
+                    if (msg.type === 'schedule' && msg.schedule) {
+                      const isMine = msg.from === currentUser?.uid;
+                      const hasResponded = respondedMeetupIds.includes(msg.time);
+                      const status = getMeetupStatus(msg);
+                      return (
+                        <div
+                          key={idx}
+                          className={`chat-message-row meetup-row${isMine ? ' from-me' : ' received'}`}
+                          style={{ display: 'flex', alignItems: 'flex-end', marginBottom: 18, justifyContent: isMine ? 'flex-end' : 'flex-start' }}
+                        >
+                          {!isMine && (
+                            <img
+                              src={avatarSrc}
+                              alt={senderInfo.username || 'User'}
+                              className="chat-sender-avatar"
+                              style={{ width: 30, height: 30, borderRadius: '50%', marginRight: 8, flexShrink: 0 }}
+                              onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                            />
+                          )}
+                          <div className={`meetup-card${isMine ? ' from-meetup' : ''}`}>
+                            <div className="meetup-card-title">{isMine ? 'You proposed a meetup' : `${senderInfo.username || 'User'} proposed a meetup`}</div>
+                            <div className="meetup-card-detail"><b>Date:</b> {new Date(msg.schedule.date).toLocaleDateString()}</div>
+                            <div className="meetup-card-detail"><b>Time:</b> {msg.schedule.time}</div>
+                            <div className="meetup-card-detail"><b>Location:</b> {msg.schedule.location}</div>
+                            <div className={`meetup-card-status meetup-status-${status.toLowerCase().replace(/ /g, '-')}`}>Status: <span>{status}</span></div>
+                            {!isMine && !hasResponded && status === 'Pending' && (
+                              <div className="meetup-card-actions">
+                                <button className="meetup-accept-btn" onClick={() => handleMeetupAction('accept', msg)}>Accept</button>
+                                <button className="meetup-reschedule-btn" onClick={() => handleMeetupAction('reschedule', msg)}>Reschedule</button>
+                                <button className="meetup-decline-btn" onClick={() => handleMeetupAction('decline', msg)}>Decline</button>
+                              </div>
+                            )}
+                          </div>
+                          {isMine && (
+                            <img
+                              src={avatarSrc}
+                              alt={senderInfo.username || 'User'}
+                              className="chat-sender-avatar"
+                              style={{ width: 30, height: 30, borderRadius: '50%', marginLeft: 8, flexShrink: 0 }}
+                              onError={e => { e.currentTarget.src = './techtower.jpeg'; }}
+                            />
+                          )}
+                        </div>
+                      );
                     }
                     return (
                       <div
@@ -238,6 +424,42 @@ export default function MessagesPage() {
                 />
                 <button className="send-btn" onClick={handleSend}>Send</button>
               </div>
+              {showScheduleModal && (
+                <div className="schedule-modal-overlay">
+                  <div className="schedule-modal">
+                    <h3>Schedule a Meetup</h3>
+                    <label>Date</label>
+                    <ReactDatePicker
+                      selected={meetupDate}
+                      onChange={(date: Date | null) => setMeetupDate(date)}
+                      minDate={new Date()}
+                      dateFormat="MMMM d, yyyy"
+                      placeholderText="Select date"
+                      className="schedule-datepicker"
+                    />
+                    <label>Time</label>
+                    <input
+                      type="time"
+                      value={meetupTime}
+                      onChange={e => setMeetupTime(e.target.value)}
+                      className="schedule-timepicker"
+                    />
+                    <label>Location</label>
+                    <input
+                      type="text"
+                      value={meetupLocation}
+                      onChange={e => setMeetupLocation(e.target.value)}
+                      placeholder="e.g. Clough Commons, Library, etc."
+                      className="schedule-location-input"
+                    />
+                    {scheduleError && <div className="schedule-error">{scheduleError}</div>}
+                    <div className="schedule-modal-actions">
+                      <button onClick={handleSendSchedule} className="schedule-submit-btn">Send Proposal</button>
+                      <button onClick={() => setShowScheduleModal(false)} className="schedule-cancel-btn">Cancel</button>
+                    </div>
+                  </div>
+                </div>
+              )}
             </main>
           ) : (
             <div className="empty-chat-area animated-fade-in">

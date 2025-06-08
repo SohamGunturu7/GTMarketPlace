@@ -272,6 +272,17 @@
   margin-bottom: 0;
   padding: 1.2rem 3.5rem 1.2rem 3.5rem;
   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  justify-content: space-between;
+}
+.chat-header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.1rem;
+}
+.chat-header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
 }
 .chat-header .chat-list-avatar {
   width: 56px;
@@ -798,4 +809,194 @@
     padding-left: 0.5rem;
     padding-right: 0.5rem;
   }
+}
+
+.schedule-meetup-btn {
+  margin-left: 1.5rem;
+  background: linear-gradient(90deg, #B3A369 0%, #e6c97a 100%);
+  color: #1a2233;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1.1rem;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(191,161,74,0.08);
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+.schedule-meetup-btn:hover {
+  background: #e6c97a;
+  color: #B3A369;
+  transform: translateY(-2px) scale(1.04);
+}
+.schedule-modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(30, 34, 51, 0.32);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.schedule-modal {
+  background: #fffbe6;
+  border-radius: 1.1rem;
+  box-shadow: 0 8px 32px rgba(30,34,51,0.18);
+  padding: 2.2rem 2.5rem 1.7rem 2.5rem;
+  min-width: 320px;
+  max-width: 95vw;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  position: relative;
+  animation: modal-pop-in 0.22s cubic-bezier(.4,0,.2,1);
+}
+@keyframes modal-pop-in {
+  0% { transform: scale(0.92) translateY(30px); opacity: 0; }
+  100% { transform: scale(1) translateY(0); opacity: 1; }
+}
+.schedule-modal h3 {
+  margin: 0 0 0.7rem 0;
+  color: #1a2233;
+  font-size: 1.25rem;
+  font-weight: 800;
+  text-align: center;
+}
+.schedule-modal label {
+  font-size: 1.01rem;
+  font-weight: 600;
+  color: #1a2233;
+  margin-bottom: 0.2rem;
+}
+.schedule-datepicker,
+.schedule-timepicker,
+.schedule-location-input {
+  width: 100%;
+  padding: 0.5rem 0.7rem;
+  border-radius: 0.6rem;
+  border: 1.5px solid #B3A369;
+  font-size: 1.07rem;
+  margin-bottom: 0.5rem;
+  background: #fff;
+  color: #1a2233;
+  outline: none;
+  transition: border 0.18s;
+}
+.schedule-datepicker:focus,
+.schedule-timepicker:focus,
+.schedule-location-input:focus {
+  border: 1.5px solid #e6c97a;
+}
+.schedule-error {
+  color: #c0392b;
+  font-size: 0.98rem;
+  margin-bottom: 0.4rem;
+  text-align: center;
+}
+.schedule-modal-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 1.1rem;
+  justify-content: center;
+  margin-top: 0.7rem;
+}
+.schedule-submit-btn {
+  background: linear-gradient(90deg, #B3A369 0%, #e6c97a 100%);
+  color: #1a2233;
+  font-weight: 700;
+  border: none;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1.05rem;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(191,161,74,0.08);
+  transition: background 0.18s, color 0.18s, transform 0.18s;
+}
+.schedule-submit-btn:hover {
+  background: #e6c97a;
+  color: #B3A369;
+  transform: translateY(-2px) scale(1.04);
+}
+.schedule-cancel-btn {
+  background: #fff;
+  color: #1a2233;
+  border: 1.5px solid #B3A369;
+  border-radius: 0.7rem;
+  padding: 0.5rem 1.2rem;
+  font-size: 1.05rem;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, border 0.18s;
+}
+.schedule-cancel-btn:hover {
+  background: #f7e9c2;
+  color: #B3A369;
+  border: 1.5px solid #e6c97a;
+}
+
+.meetup-card {
+  background: linear-gradient(90deg, #fffbe6 70%, #e6c97a 100%);
+  border: 2px solid #B3A369;
+  border-radius: 1.1rem;
+  box-shadow: 0 4px 18px rgba(191,161,74,0.13);
+  padding: 1.2rem 1.5rem 1.1rem 1.5rem;
+  min-width: 260px;
+  max-width: 340px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  position: relative;
+  margin: 0 0.5rem;
+  animation: modal-pop-in 0.22s cubic-bezier(.4,0,.2,1);
+}
+.meetup-card.from-meetup {
+  background: linear-gradient(90deg, #e6c97a 0%, #fffbe6 100%);
+  border: 2px solid #B3A369;
+}
+.meetup-card-title {
+  font-size: 1.13rem;
+  font-weight: 800;
+  color: #003057;
+  margin-bottom: 0.2rem;
+}
+.meetup-card-detail {
+  font-size: 1.05rem;
+  color: #1a2233;
+  margin-bottom: 0.1rem;
+}
+.meetup-card-status {
+  font-size: 1.01rem;
+  font-weight: 700;
+  margin-top: 0.3rem;
+  text-align: left;
+  display: block;
+  color: #003057;
+}
+.meetup-status-pending span {
+  color: #ff3b30;
+}
+.meetup-status-accepted span {
+  color: #4ade80;
+}
+.meetup-status-declined span {
+  color: #ff3b30;
+}
+.meetup-status-reschedule-requested span {
+  color: #3ec6e0;
+}
+.meetup-card-actions {
+  display: flex;
+  flex-direction: row;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+  justify-content: flex-end;
+}
+.meetup-accept-btn,
+.meetup-reschedule-btn,
+.meetup-decline-btn {
+  padding: 0.28rem 0.7rem;
+  font-size: 0.97rem;
+  border-radius: 0.5rem;
+  min-width: 80px;
+  max-width: 110px;
+  font-weight: 700;
 } 

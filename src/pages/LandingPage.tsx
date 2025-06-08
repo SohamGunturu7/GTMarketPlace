@@ -310,7 +310,7 @@ function LandingPage() {
           {currentUser && (
             <div className="nav-links">
               <span className="nav-link" onClick={() => navigate('/explore')}>Explore</span>
-              <span className="nav-link" onClick={() => navigate('/messages')}>
+              <span className={`nav-link${notifCount > 0 ? ' has-badge' : ''}`} onClick={() => navigate('/messages')}>
                 Messages
                 {notifCount > 0 && (
                   <span className="notif-badge">{notifCount}</span>

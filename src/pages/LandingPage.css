@@ -1745,10 +1745,6 @@
   align-items: center;
   justify-content: center;
   box-shadow: 0 2px 8px rgba(0,0,0,0.13);
-  position: absolute;
-  top: -7px;
-  right: -7px;
-  z-index: 10;
   border: 2px solid #fff;
   transition: background 0.18s, transform 0.18s;
   animation: notif-pop 0.35s cubic-bezier(.4,0,.2,1);
@@ -2669,7 +2665,7 @@
   user-select: none;
   text-shadow: 0 1px 4px rgba(0,0,0,0.08);
   position: relative;
-  overflow: hidden;
+  overflow: visible;
 }
 .nav-link::after {
   content: '';
@@ -2691,6 +2687,15 @@
 .nav-link:hover::after, .nav-link:focus::after {
   width: 90%;
   left: 5%;
+}
+.nav-link .notif-badge {
+  position: absolute;
+  top: -10px;
+  right: -14px;
+  z-index: 10;
+}
+.nav-link.has-badge {
+  padding-right: 1.7rem;
 }
 @media (max-width: 900px) {
   .nav-links {
