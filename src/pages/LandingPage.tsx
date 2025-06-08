@@ -211,21 +211,6 @@ function LandingPage() {
     setShowEditProfile(true);
   };
 
-  const handleMyListings = () => {
-    setShowDropdown(false);
-    navigate('/my-listings');
-  };
-
-  const handlePurchaseHistory = () => {
-    setShowDropdown(false);
-    navigate('/purchase-history');
-  };
-
-  const handleMessages = () => {
-    setShowDropdown(false);
-    navigate('/messages');
-  };
-
   const handleAddWantedItem = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newWantedItem.trim() || wantedItems.includes(newWantedItem.trim()) || !currentUser) return;

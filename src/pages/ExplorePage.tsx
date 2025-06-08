@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { collection, getDocs, doc, getDoc, deleteDoc, updateDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { db } from '../firebase/config';
@@ -26,10 +26,8 @@ export default function ExplorePage() {
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [listings, setListings] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showTradeFor, setShowTradeFor] = useState<Record<string, boolean>>({});
   const [favorites, setFavorites] = useState<string[]>([]);
   const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
-  const tradeDropdownRefs = useRef<Record<string, HTMLDivElement | null>>({});
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [showMap, setShowMap] = useState(false);
@@ -98,19 +96,6 @@ export default function ExplorePage() {
       console.error('Error updating favorites:', error);
     }
   };
-
-  /* ——————————————————— outside‑click handler for trade dropdown ——————————————————— */
-  useEffect(() => {
-    const handle = (e: MouseEvent) => {
-      Object.entries(tradeDropdownRefs.current).forEach(([id, ref]) => {
-        if (ref && !ref.contains(e.target as Node)) {
-          setShowTradeFor(p => ({ ...p, [id]: false }));
-        }
-      });
-    };
-    document.addEventListener('mousedown', handle);
-    return () => document.removeEventListener('mousedown', handle);
-  }, []);
 
   /* ——————————————————— derived lists ——————————————————— */
   const filteredListings = listings.filter(l => {
@@ -237,14 +222,6 @@ export default function ExplorePage() {
                   <div className="explore-listing-header-row">
                     <h4>{listing.title}</h4>
                     <div className="explore-listing-actions-top">
-                      <button
-                        className="message-btn"
-                        onClick={() =>
-                          setShowTradeFor(p => ({ ...p, [listing.id]: !p[listing.id] }))
-                        }
-                      >
-                        Trade
-                      </button>
                       <button className="message-btn" onClick={() => {
                         if (!currentUser || !listing.userId || currentUser.uid === listing.userId) return;
                         navigate('/messages', {
