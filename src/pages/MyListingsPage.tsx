@@ -15,6 +15,7 @@ export default function MyListingsPage() {
   const [buyerEmail, setBuyerEmail] = useState('');
   const [buyerUsername, setBuyerUsername] = useState('');
   const [modalError, setModalError] = useState('');
+  const [quantitySold, setQuantitySold] = useState('1');
 
   useEffect(() => {
     if (!currentUser) return;
@@ -34,12 +35,18 @@ export default function MyListingsPage() {
     setBuyerEmail('');
     setBuyerUsername('');
     setModalError('');
+    setQuantitySold('1');
   };
 
   const handleSoldSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!buyerEmail || !buyerUsername || !selectedListing) {
       setModalError('Please enter both email and username.');
+      return;
+    }
+    const parsedQuantity = parseInt(quantitySold, 10);
+    if (!parsedQuantity || parsedQuantity < 1 || parsedQuantity > (selectedListing.quantity || 1)) {
+      setModalError('Please enter a valid quantity to sell.');
       return;
     }
     // Find the buyer's user document
@@ -51,8 +58,13 @@ export default function MyListingsPage() {
       return;
     }
     const buyerDoc = querySnapshot.docs[0];
-    // Update the listing status
-    await updateDoc(doc(db, 'listings', selectedListing.id), { status: 'sold', updatedAt: serverTimestamp() });
+    // Update the listing quantity or status
+    const newQuantity = (selectedListing.quantity || 1) - parsedQuantity;
+    if (newQuantity > 0) {
+      await updateDoc(doc(db, 'listings', selectedListing.id), { quantity: newQuantity, updatedAt: serverTimestamp() });
+    } else {
+      await updateDoc(doc(db, 'listings', selectedListing.id), { status: 'sold', quantity: 0, updatedAt: serverTimestamp() });
+    }
     // Add to buyer's purchaseHistory
     await updateDoc(doc(db, 'users', buyerDoc.id), {
       purchaseHistory: arrayUnion({
@@ -63,6 +75,7 @@ export default function MyListingsPage() {
         date: new Date().toISOString(),
         sellerId: selectedListing.userId,
         sellerUsername: currentUser && currentUser.displayName ? currentUser.displayName : 'Seller',
+        quantity: parsedQuantity,
       })
     });
     setShowSoldModal(false);
@@ -70,8 +83,9 @@ export default function MyListingsPage() {
     setBuyerEmail('');
     setBuyerUsername('');
     setModalError('');
+    setQuantitySold('1');
     // Optionally, refresh listings
-    setMyListings(listings => listings.map(l => l.id === selectedListing.id ? { ...l, status: 'sold' } : l));
+    setMyListings(listings => listings.map(l => l.id === selectedListing.id ? { ...l, quantity: Math.max(0, (l.quantity || 1) - parsedQuantity), status: (newQuantity > 0 ? l.status : 'sold') } : l));
   };
 
   const handleDeleteListing = async (listingId: string) => {
@@ -151,6 +165,8 @@ export default function MyListingsPage() {
               <input type="email" value={buyerEmail} onChange={e => setBuyerEmail(e.target.value)} required />
               <label>Username of Buyer:</label>
               <input type="text" value={buyerUsername} onChange={e => setBuyerUsername(e.target.value)} required />
+              <label>Quantity to Sell (Available: {selectedListing?.quantity || 1}):</label>
+              <input type="text" value={quantitySold} onChange={e => setQuantitySold(e.target.value.replace(/[^0-9]/g, ''))} required />
               {modalError && <div className="modal-error">{modalError}</div>}
               <div className="sold-modal-actions">
                 <button type="submit" className="confirm-sold-btn">Confirm Sold</button>

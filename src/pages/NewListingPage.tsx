@@ -27,7 +27,7 @@ export default function NewListingPage() {
   const [success, setSuccess] = useState('');
   const [showMapModal, setShowMapModal] = useState(false);
   const [marker, setMarker] = useState<{ lat: number; lng: number } | null>(null);
-  const [quantity, setQuantity] = useState(1);
+  const [quantity, setQuantity] = useState('1');
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -64,6 +64,11 @@ export default function NewListingPage() {
       setError('Please set a coordinate pin for your item on the map.');
       return;
     }
+    const parsedQuantity = parseInt(quantity, 10);
+    if (!parsedQuantity || parsedQuantity < 1) {
+      setError('Please enter a valid quantity (1 or more).');
+      return;
+    }
     setLoading(true);
     try {
       let url = './tech-tower.png';
@@ -89,7 +94,7 @@ export default function NewListingPage() {
         tradeFor,
         lat: marker?.lat || null,
         lng: marker?.lng || null,
-        quantity,
+        quantity: parsedQuantity,
       });
       setSuccess('Listing created successfully!');
       setTimeout(() => navigate('/my-listings'), 1200);
@@ -226,11 +231,13 @@ export default function NewListingPage() {
                 <div className="form-group">
                   <label htmlFor="quantity">Quantity</label>
                   <input
-                    type="number"
+                    type="text"
                     id="quantity"
                     value={quantity}
-                    onChange={e => setQuantity(Math.max(1, parseInt(e.target.value) || 1))}
-                    min={1}
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^0-9]/g, '');
+                      setQuantity(val);
+                    }}
                     required
                     placeholder=" "
                   />

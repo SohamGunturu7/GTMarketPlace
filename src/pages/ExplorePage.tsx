@@ -119,9 +119,10 @@ export default function ExplorePage() {
       l.description?.toLowerCase().includes(search.toLowerCase());
     const matchesTag =
       selectedTags.length === 0 || l.tags?.some((t: string) => selectedTags.includes(t));
-    const notSold = !l.status || (typeof l.status === 'string' && l.status.toLowerCase() !== 'sold');
+    const hasQuantity = typeof l.quantity === 'number' ? l.quantity > 0 : true;
+    const notSoldOrHasQuantity = hasQuantity || (!l.status || (typeof l.status === 'string' && l.status.toLowerCase() !== 'sold'));
     const matchesFavorites = !showFavoritesOnly || favorites.includes(l.id);
-    return matchesSearch && matchesTag && notSold && matchesFavorites;
+    return matchesSearch && matchesTag && notSoldOrHasQuantity && matchesFavorites;
   });
   const hasCoords = (l: any) => !isNaN(l.lat) && !isNaN(l.lng);
 

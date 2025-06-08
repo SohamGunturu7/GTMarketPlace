@@ -325,7 +325,12 @@ function LandingPage() {
           {currentUser && (
             <div className="nav-links">
               <span className="nav-link" onClick={() => navigate('/explore')}>Explore</span>
-              <span className="nav-link" onClick={() => navigate('/messages')}>Messages</span>
+              <span className="nav-link" onClick={() => navigate('/messages')}>
+                Messages
+                {notifCount > 0 && (
+                  <span className="notif-badge">{notifCount}</span>
+                )}
+              </span>
               <span className="nav-link" onClick={() => navigate('/purchase-history')}>Purchase History</span>
               <span className="nav-link" onClick={() => navigate('/my-listings')}>My Listings</span>
             </div>
@@ -336,9 +341,6 @@ function LandingPage() {
             <div className="user-section" onClick={handleProfileClick} style={{ position: 'relative' }}>
               <img src={profilePicture || './default-avatar.png'} alt="Profile" className="profile-pic" />
               <span className="username">{username}</span>
-              {notifCount > 0 && (
-                <span className="notif-badge">{notifCount}</span>
-              )}
               {(showDropdown || dropdownClosing) && (
                 <div className={`profile-dropdown${dropdownClosing ? ' closing' : ''}`}> 
                   <button onClick={handleEditProfile}>Edit Profile</button>
