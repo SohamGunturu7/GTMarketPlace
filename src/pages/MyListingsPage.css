@@ -353,4 +353,49 @@
   display: flex;
   align-items: center;
   justify-content: center;
+}
+
+.sold-modal.delete-modal {
+  min-width: 260px;
+  max-width: 340px;
+  padding: 1.3rem 1.2rem 1.1rem 1.2rem;
+  gap: 0.7rem;
+  background: #fff8f8;
+  border: 2px solid #ff4444;
+  box-shadow: 0 4px 18px rgba(255,68,68,0.13);
+}
+.delete-modal h3 {
+  color: #ff4444;
+  font-size: 1.18rem;
+  font-weight: 900;
+  margin-bottom: 0.3rem;
+  letter-spacing: 0.2px;
+}
+.delete-modal p {
+  color: #232a34;
+  font-size: 1.01rem;
+  margin-bottom: 0.7rem;
+  text-align: center;
+}
+.delete-modal .sold-modal-actions {
+  gap: 0.7rem;
+  justify-content: center;
+}
+.delete-modal .confirm-sold-btn {
+  background: linear-gradient(90deg, #ff4444 0%, #ff8888 100%);
+  color: #fff;
+}
+.delete-modal .confirm-sold-btn:hover {
+  background: linear-gradient(90deg, #ff8888 0%, #ff4444 100%);
+  color: #fff;
+}
+.delete-modal .cancel-sold-btn {
+  background: #fff;
+  color: #ff4444;
+  border: 1.5px solid #ff8888;
+}
+.delete-modal .cancel-sold-btn:hover {
+  background: #ffeded;
+  color: #ff4444;
+  border: 1.5px solid #ff4444;
 } 

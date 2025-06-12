@@ -16,13 +16,13 @@ interface Listing {
   imageUrl?: string;
   userId?: string;
   sellerId?: string;
+  quantity?: number;
 }
 
 export default function RecentActivityFeed() {
   const [activities, setActivities] = useState<Listing[]>([]);
   const [loading, setLoading] = useState(true);
   const { currentUser } = useAuth();
-  const [recentActivity] = useState<any[]>([]);
 
   useEffect(() => {
     async function fetchRecent() {
@@ -60,8 +60,13 @@ export default function RecentActivityFeed() {
       // Get sold/listed items
       const soldListings = items.filter(item => item.userId === currentUser.uid);
       
-      // Get bought items
-      const boughtItems = recentActivity.map(p => ({
+      // Fetch purchaseHistory for the current user
+      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      let purchaseArr: any[] = [];
+      if (userDoc.exists()) {
+        purchaseArr = userDoc.data().purchaseHistory || [];
+      }
+      const boughtItems = purchaseArr.map(p => ({
         id: p.listingId,
         title: p.title,
         createdAt: p.date || new Date().toISOString(),
@@ -71,6 +76,7 @@ export default function RecentActivityFeed() {
         imageUrl: p.image || p.imageUrl || './techtower.jpeg',
         sellerId: p.sellerId,
         userId: currentUser.uid,
+        quantity: p.quantity, // ensure quantity is included
       }));
       
       // Merge and sort all activities
@@ -91,7 +97,7 @@ export default function RecentActivityFeed() {
       setLoading(false);
     }
     fetchRecent();
-  }, [currentUser, recentActivity]);
+  }, [currentUser]);
 
   useEffect(() => {
     async function fetchMissingSellerUsernames() {
@@ -150,6 +156,9 @@ export default function RecentActivityFeed() {
             if (anyItem && anyItem.updatedAt) {
               time = anyItem.updatedAt;
             }
+            // Determine if this is a partial sale or purchase
+            const soldQuantity = (item as any).lastSoldQuantity || (item as any).recentSale?.quantity;
+            const boughtQuantity = (item as any).quantity && item.status === 'bought' ? (item as any).quantity : null;
             return (
               <div
                 className="recent-activity-item animated-entry"
@@ -170,10 +179,16 @@ export default function RecentActivityFeed() {
                     {item.price !== undefined && <span className="activity-price">${item.price}</span>}
                   </div>
                   <div className="activity-meta-row">
+                    <span className="recent-activity-time">{formatTime(time)}</span>
                     {item.status !== 'bought' && item.sellerUsername && (
                       <span className="seller-name">by {item.sellerUsername}</span>
                     )}
-                    <span className="recent-activity-time">{formatTime(time)}</span>
+                    {soldQuantity && item.status !== 'sold' && (
+                      <span className="sold-quantity">Sold Quantity: {soldQuantity}</span>
+                    )}
+                    {boughtQuantity && item.status === 'bought' && (
+                      <span className="bought-quantity">Quantity {boughtQuantity}</span>
+                    )}
                   </div>
                 </div>
               </div>

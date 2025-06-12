@@ -11,29 +11,33 @@ import AboutPage from './pages/AboutPage';
 import SupportPage from './pages/SupportPage';
 import ResetPassword from './pages/ResetPassword';
 import ResetPasswordConfirm from './pages/ResetPasswordConfirm';
+import { Provider } from 'react-redux';
+import { store } from './store';
 
 import './App.css';
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/reset-password/confirm" element={<ResetPasswordConfirm />} />
-          <Route path="/explore" element={<ExplorePage />} />
-          <Route path="/my-listings" element={<ListingPage />} />
-          <Route path="/new-listing" element={<NewListingPage />} />
-          <Route path="/messages" element={<MessagesPage />} />
-          <Route path="/purchase-history" element={<PurchasePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/support" element={<SupportPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </AuthProvider>
-    </Router>
+    <Provider store={store}>
+      <Router>
+        <AuthProvider>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/reset-password/confirm" element={<ResetPasswordConfirm />} />
+            <Route path="/explore" element={<ExplorePage />} />
+            <Route path="/my-listings" element={<ListingPage />} />
+            <Route path="/new-listing" element={<NewListingPage />} />
+            <Route path="/messages" element={<MessagesPage />} />
+            <Route path="/purchase-history" element={<PurchasePage />} />
+            <Route path="/about" element={<AboutPage />} />
+            <Route path="/support" element={<SupportPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </AuthProvider>
+      </Router>
+    </Provider>
   );
 }
 

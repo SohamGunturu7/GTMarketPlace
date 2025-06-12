@@ -60,6 +60,10 @@ export default function NewListingPage() {
       setError('Please fill in all fields.');
       return;
     }
+    if (tags.length === 0) {
+      setError('Please select at least one tag.');
+      return;
+    }
     if (!marker) {
       setError('Please set a coordinate pin for your item on the map.');
       return;

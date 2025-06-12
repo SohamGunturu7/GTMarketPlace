@@ -1,16 +1,15 @@
 // Needed for JSX and react-datepicker compatibility
-import React from 'react';
 import { useState, useEffect, useRef } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 import { db } from '../firebase/config';
 import { collection, query, where, onSnapshot, doc, setDoc, getDoc, updateDoc, arrayUnion } from 'firebase/firestore';
 import './MessagesPage.css';
 import ReactDatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import PersistentNav from '../components/PersistentNav';
 
 export default function MessagesPage() {
-  const navigate = useNavigate();
   const location = useLocation();
   const { currentUser } = useAuth();
   if (!currentUser) return null;
@@ -278,15 +277,11 @@ export default function MessagesPage() {
   // UI
   return (
     <div className="messages-page">
-      <nav className="messages-nav glass-nav">
-        <div className="messages-nav-left">
-          <img src="./gt.png" alt="GT Logo" className="gt-logo" />
-          <h1 className="messages-title">Messages</h1>
-        </div>
-        <div className="messages-nav-right">
-          <button className="messages-nav-button" onClick={() => navigate('/')}>Home</button>
-        </div>
-      </nav>
+      <PersistentNav
+        handleProfileClick={() => {}}
+        handleEditProfile={() => {}}
+        handleLogout={() => {}}
+      />
       <div className="messages-main-layout">
         {/* Left: Chat Area */}
         <div className="messages-main">

@@ -5,13 +5,12 @@ import { db } from '../firebase/config';
 import './ExplorePage.css';
 import { useAuth } from '../contexts/AuthContext';
 import CampusMap from './CampusMap';
+import PersistentNav from '../components/PersistentNav';
 
 /* ——— icons & tags ——— */
-const tagIcons: Record<string, string> = {
-  Textbooks: '📚', Electronics: '💻', Clothing: '👕', Housing: '🏠',
-  Furniture: '🛋️', Tickets: '🎟️', Services: '🛠️', Appliances: '🔌', Other: '✨'
-};
-const sampleTags = Object.keys(tagIcons);
+const sampleTags = [
+  'Textbooks', 'Electronics', 'Clothing', 'Housing', 'Furniture', 'Tickets', 'Services', 'Appliances', 'Other'
+];
 
 /* ——— util ——— */
 const formatDate = (timestamp: any) => {
@@ -31,6 +30,9 @@ export default function ExplorePage() {
   const navigate = useNavigate();
   const { currentUser } = useAuth();
   const [showMap, setShowMap] = useState(false);
+  const [showTradeDropdown, setShowTradeDropdown] = useState<string | null>(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteListingId, setDeleteListingId] = useState<string | null>(null);
 
   /* ——————————————————— fetch & normalise listings ——————————————————— */
   useEffect(() => {
@@ -97,6 +99,10 @@ export default function ExplorePage() {
     }
   };
 
+  const toggleTradeDropdown = (listingId: string) => {
+    setShowTradeDropdown(showTradeDropdown === listingId ? null : listingId);
+  };
+
   /* ——————————————————— derived lists ——————————————————— */
   const filteredListings = listings.filter(l => {
     const matchesSearch =
@@ -107,7 +113,8 @@ export default function ExplorePage() {
     const hasQuantity = typeof l.quantity === 'number' ? l.quantity > 0 : true;
     const notSoldOrHasQuantity = hasQuantity || (!l.status || (typeof l.status === 'string' && l.status.toLowerCase() !== 'sold'));
     const matchesFavorites = !showFavoritesOnly || favorites.includes(l.id);
-    return matchesSearch && matchesTag && notSoldOrHasQuantity && matchesFavorites;
+    const notOwnListing = !currentUser || l.userId !== currentUser.uid;
+    return matchesSearch && matchesTag && notSoldOrHasQuantity && matchesFavorites && notOwnListing;
   });
   const hasCoords = (l: any) => !isNaN(l.lat) && !isNaN(l.lng);
 
@@ -119,16 +126,11 @@ export default function ExplorePage() {
   /* ——————————————————— JSX ——————————————————— */
   return (
     <div className="explore-page">
-      {/* NAV */}
-      <nav className="landing-nav glass-nav">
-        <div className="landing-nav-left">
-          <img src="./logo.png" alt="GT Logo" className="gt-logo" />
-          <h1 className="landing-title">GT Marketplace</h1>
-        </div>
-        <div className="landing-nav-right">
-          <button className="landing-nav-button" onClick={() => navigate('/')}>Home</button>
-        </div>
-      </nav>
+      <PersistentNav
+        handleProfileClick={() => {}}
+        handleEditProfile={() => {}}
+        handleLogout={() => {}}
+      />
 
       {/* TAG FILTER */}
       <aside className="filter-bar glass-filter">
@@ -151,7 +153,6 @@ export default function ExplorePage() {
                 setSelectedTags(p => (p.includes(tag) ? p.filter(t => t !== tag) : [...p, tag]))
               }
             >
-              <span className="tag-icon">{tagIcons[tag]}</span>
               <span className="tag-label">{tag}</span>
             </button>
           ))}
@@ -235,6 +236,23 @@ export default function ExplorePage() {
                       }}>
                         Message
                       </button>
+                      <button className="message-btn" onClick={() => toggleTradeDropdown(listing.id)}>
+                        Trade
+                      </button>
+                      {showTradeDropdown === listing.id && (
+                        <div className="trade-dropdown">
+                          <h4>Trades</h4>
+                          <div className="trade-dropdown-tags">
+                            {listing.tradeFor && listing.tradeFor.trim() ? (
+                              listing.tradeFor.split(',').map((item: string, idx: number) => (
+                                <span className="explore-tradefor-tag" key={idx}>{item.trim()}</span>
+                              ))
+                            ) : (
+                              <span style={{ color: '#bfa14a', fontWeight: 600 }}>None</span>
+                            )}
+                          </div>
+                        </div>
+                      )}
                     </div>
                   </div>
                   <div className="explore-listing-quantity">Quantity: {listing.quantity ?? 1}</div>
@@ -252,16 +270,9 @@ export default function ExplorePage() {
                     {currentUser?.uid === listing.userId && (
                       <button
                         className="message-btn explore-delete-btn"
-                        onClick={async () => {
-                          if (window.confirm('Delete one item from this listing?')) {
-                            if (listing.quantity && listing.quantity > 1) {
-                              await updateDoc(doc(db, 'listings', listing.id), {
-                                quantity: listing.quantity - 1
-                              });
-                            } else {
-                              await deleteDoc(doc(db, 'listings', listing.id));
-                            }
-                          }
+                        onClick={() => {
+                          setDeleteListingId(listing.id);
+                          setShowDeleteModal(true);
                         }}
                       >
                         Delete
@@ -274,6 +285,38 @@ export default function ExplorePage() {
           )}
         </div>
       </main>
+
+      {showDeleteModal && (
+        <div className="sold-modal-overlay">
+          <div className="sold-modal delete-modal">
+            <h3>Delete Listing</h3>
+            <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
+            <div className="sold-modal-actions">
+              <button
+                className="confirm-sold-btn"
+                onClick={async () => {
+                  if (!deleteListingId) return;
+                  await deleteDoc(doc(db, 'listings', deleteListingId));
+                  setListings(prev => prev.filter(l => l.id !== deleteListingId));
+                  setShowDeleteModal(false);
+                  setDeleteListingId(null);
+                }}
+              >
+                Delete
+              </button>
+              <button
+                className="cancel-sold-btn"
+                onClick={() => {
+                  setShowDeleteModal(false);
+                  setDeleteListingId(null);
+                }}
+              >
+                Cancel
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

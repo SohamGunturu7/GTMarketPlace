@@ -2,15 +2,14 @@ import { useEffect, useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firestore';
 import { db } from '../firebase/config';
-import { useNavigate } from 'react-router-dom';
 import './MyListingsPage.css';
+import PersistentNav from '../components/PersistentNav';
 
 export default function PurchaseHistoryPage() {
   const { currentUser } = useAuth();
   const [purchases, setPurchases] = useState<any[]>([]);
   const [sellerMap, setSellerMap] = useState<{ [uid: string]: string }>({});
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     if (!currentUser) return;
@@ -42,15 +41,11 @@ export default function PurchaseHistoryPage() {
 
   return (
     <div className="my-listings-page">
-      <nav className="landing-nav glass-nav">
-        <div className="landing-nav-left">
-          <img src="./gt.png" alt="GT Logo" className="gt-logo" />
-          <h1 className="landing-title">GT Marketplace</h1>
-        </div>
-        <div className="landing-nav-right">
-          <button className="landing-nav-button" onClick={() => navigate('/')}>Home</button>
-        </div>
-      </nav>
+      <PersistentNav
+        handleProfileClick={() => {}}
+        handleEditProfile={() => {}}
+        handleLogout={() => {}}
+      />
       <header className="my-listings-header">
         <h2>Purchase History</h2>
       </header>

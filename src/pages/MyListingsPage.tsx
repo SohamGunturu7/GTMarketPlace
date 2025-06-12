@@ -1,6 +1,7 @@
 import './MyListingsPage.css';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
+import PersistentNav from '../components/PersistentNav';
 import { useEffect, useState } from 'react';
 import { collection, query, where, getDocs, doc, updateDoc, arrayUnion, serverTimestamp, deleteDoc } from 'firebase/firestore';
 import { db } from '../firebase/config';
@@ -16,6 +17,8 @@ export default function MyListingsPage() {
   const [buyerUsername, setBuyerUsername] = useState('');
   const [modalError, setModalError] = useState('');
   const [quantitySold, setQuantitySold] = useState('1');
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [deleteListingId, setDeleteListingId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!currentUser) return;
@@ -62,6 +65,16 @@ export default function MyListingsPage() {
     const newQuantity = (selectedListing.quantity || 1) - parsedQuantity;
     if (newQuantity > 0) {
       await updateDoc(doc(db, 'listings', selectedListing.id), { quantity: newQuantity, updatedAt: serverTimestamp() });
+      // Record partial sale in recent activity (Firestore or Redux)
+      // We'll add a 'recentSales' subcollection for this listing
+      await updateDoc(doc(db, 'listings', selectedListing.id), {
+        recentSale: {
+          quantity: parsedQuantity,
+          date: new Date().toISOString(),
+          buyerEmail,
+          buyerUsername,
+        }
+      });
     } else {
       await updateDoc(doc(db, 'listings', selectedListing.id), { status: 'sold', quantity: 0, updatedAt: serverTimestamp() });
     }
@@ -85,30 +98,38 @@ export default function MyListingsPage() {
     setModalError('');
     setQuantitySold('1');
     // Optionally, refresh listings
-    setMyListings(listings => listings.map(l => l.id === selectedListing.id ? { ...l, quantity: Math.max(0, (l.quantity || 1) - parsedQuantity), status: (newQuantity > 0 ? l.status : 'sold') } : l));
+    setMyListings(listings => listings.map(l => l.id === selectedListing.id ? { ...l, quantity: Math.max(0, (l.quantity || 1) - parsedQuantity), status: (newQuantity > 0 ? l.status : 'sold'), lastSoldQuantity: parsedQuantity, lastSoldDate: new Date().toISOString() } : l));
   };
 
-  const handleDeleteListing = async (listingId: string) => {
-    if (!window.confirm('Are you sure you want to delete this listing? This action cannot be undone.')) return;
+  const handleDeleteListing = (listingId: string) => {
+    setDeleteListingId(listingId);
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteListing = async () => {
+    if (!deleteListingId) return;
     try {
-      await deleteDoc(doc(db, 'listings', listingId));
-      setMyListings(prev => prev.filter(listing => listing.id !== listingId));
+      await deleteDoc(doc(db, 'listings', deleteListingId));
+      setMyListings(prev => prev.filter(listing => listing.id !== deleteListingId));
     } catch (err) {
       alert('Failed to delete listing. Please try again.');
     }
+    setShowDeleteModal(false);
+    setDeleteListingId(null);
+  };
+
+  const cancelDeleteListing = () => {
+    setShowDeleteModal(false);
+    setDeleteListingId(null);
   };
 
   return (
     <div className="my-listings-page">
-      <nav className="landing-nav glass-nav">
-        <div className="landing-nav-left">
-          <img src="./logo.png" alt="GT Logo" className="gt-logo" />
-          <h1 className="landing-title">GT Marketplace</h1>
-        </div>
-        <div className="landing-nav-right">
-          <button className="landing-nav-button" onClick={() => navigate('/')}>Home</button>
-        </div>
-      </nav>
+      <PersistentNav
+        handleProfileClick={() => {}}
+        handleEditProfile={() => {}}
+        handleLogout={() => {}}
+      />
       <header className="my-listings-header">
         <h2>My Listings</h2>
         <button className="my-new-listing-btn" onClick={() => navigate('/new-listing')}>
@@ -173,6 +194,18 @@ export default function MyListingsPage() {
                 <button type="button" className="cancel-sold-btn" onClick={() => setShowSoldModal(false)}>Cancel</button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      {showDeleteModal && (
+        <div className="sold-modal-overlay">
+          <div className="sold-modal delete-modal">
+            <h3>Delete Listing</h3>
+            <p>Are you sure you want to delete this listing? This action cannot be undone.</p>
+            <div className="sold-modal-actions">
+              <button className="confirm-sold-btn" onClick={confirmDeleteListing}>Delete</button>
+              <button className="cancel-sold-btn" onClick={cancelDeleteListing}>Cancel</button>
+            </div>
           </div>
         </div>
       )}

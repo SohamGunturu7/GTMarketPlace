@@ -7,6 +7,13 @@ import { updateProfile } from 'firebase/auth';
 import { storage, db } from '../firebase/config';
 import { collection, query, where, onSnapshot, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import RecentActivityFeed from './RecentActivityFeed';
+import PersistentNav from '../components/PersistentNav';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '../store';
+import {
+  setUser, setNotifCount, setWantedItems, setInterests, setShowDropdown, setDropdownClosing,
+  setShowEditProfile, setError, setSuccess, logoutUser
+} from '../features/userSlice';
 
 const sampleTags = [
   'Textbooks', 'Electronics', 'Clothing', 'Housing', 'Furniture', 'Tickets', 'Services', 'Appliances', 'Other'
@@ -45,77 +52,82 @@ const features = [
 ];
 
 function LandingPage() {
-  const { currentUser, logout } = useAuth();
+  const { currentUser: authUser, logout } = useAuth();
   const navigate = useNavigate();
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [showEditProfile, setShowEditProfile] = useState(false);
-  const [username, setUsername] = useState('');
-  const [email, setEmail] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
-  const [profilePicture, setProfilePicture] = useState<string | null>(null);
+  const dispatch = useDispatch();
+  const {
+    username, email, profilePicture,
+    wantedItems, interests,
+    showDropdown, showEditProfile, error, success
+  } = useSelector((state: RootState) => state.user);
+
+  // Local state for non-user-specific UI
   const [isLoading, setIsLoading] = useState(false);
-  const [interests, setInterests] = useState<string[]>([]);
-  const [wantedItems, setWantedItems] = useState<string[]>([]);
   const [newWantedItem, setNewWantedItem] = useState('');
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [notifCount, setNotifCount] = useState(0);
   const [dashboardStats, setDashboardStats] = useState({ sold: 0, active: 0, bought: 0, loading: true });
   const [recommendedListings, setRecommendedListings] = useState<any[]>([]);
-  const [dropdownClosing, setDropdownClosing] = useState(false);
+  const [profileSnapshot, setProfileSnapshot] = useState<any>(null);
+  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
   const [gridVisible, setGridVisible] = useState(false);
   const [hasAnimated, setHasAnimated] = useState(false);
   const gridRef = useRef<HTMLDivElement | null>(null);
-  const [showLogoutPopup, setShowLogoutPopup] = useState(false);
-  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
   // Listen for unread messages
   useEffect(() => {
-    if (!currentUser) return;
-
-    const q = query(collection(db, 'chats'), where('users', 'array-contains', currentUser.uid));
+    if (!authUser) return;
+    const q = query(collection(db, 'chats'), where('users', 'array-contains', authUser.uid));
     const unsubscribe = onSnapshot(q, (querySnapshot) => {
       let count = 0;
       querySnapshot.forEach((doc) => {
         const messages = doc.data().messages || [];
         messages.forEach((msg: any) => {
-          if (msg.from !== currentUser.uid && !msg.readBy?.includes(currentUser.uid)) {
+          if (msg.from !== authUser.uid && !msg.readBy?.includes(authUser.uid)) {
             count++;
           }
         });
       });
-      setNotifCount(count);
+      dispatch(setNotifCount(count));
     });
-
     return () => unsubscribe();
-  }, [currentUser]);
+  }, [authUser, dispatch]);
 
+  // Set user info in Redux (serializable only)
   useEffect(() => {
-    if (currentUser) {
-      // Set initial values
-      setEmail(currentUser.email || '');
-      setUsername(currentUser.displayName || 'User');
-      setProfilePicture(currentUser.photoURL || './default-avatar.png');
-      
+    if (authUser) {
+      dispatch(setUser({
+        uid: authUser.uid,
+        email: authUser.email || '',
+        username: authUser.displayName || 'User',
+        profilePicture: authUser.photoURL || './default-avatar.png',
+      }));
       // Fetch user preferences
       const fetchUserPreferences = async () => {
-        const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+        const userDoc = await getDoc(doc(db, 'users', authUser.uid));
         if (userDoc.exists()) {
           const data = userDoc.data();
-          setInterests(data.interests || []);
-          setWantedItems(data.wantedItems || []);
+          dispatch(setInterests(data.interests || []));
+          dispatch(setWantedItems(data.wantedItems || []));
         }
       };
       fetchUserPreferences();
+    } else {
+      dispatch(setUser({
+        uid: null,
+        email: '',
+        username: '',
+        profilePicture: null,
+      }));
     }
-  }, [currentUser]);
+  }, [authUser, dispatch]);
 
+  // Dashboard stats
   useEffect(() => {
     async function fetchDashboardStats() {
-      if (!currentUser) return;
+      if (!authUser) return;
       setDashboardStats({ sold: 0, active: 0, bought: 0, loading: true });
-      // Fetch listings for this user
-      const q = query(collection(db, 'listings'), where('userId', '==', currentUser.uid));
+      const q = query(collection(db, 'listings'), where('userId', '==', authUser.uid));
       const querySnapshot = await getDocs(q);
       let sold = 0, active = 0;
       querySnapshot.forEach(doc => {
@@ -123,8 +135,7 @@ function LandingPage() {
         if (typeof data.status === 'string' && data.status.toLowerCase() === 'sold') sold++;
         else active++;
       });
-      // Fetch purchaseHistory
-      const userDoc = await getDoc(doc(db, 'users', currentUser.uid));
+      const userDoc = await getDoc(doc(db, 'users', authUser.uid));
       let bought = 0;
       if (userDoc.exists()) {
         const data = userDoc.data();
@@ -132,41 +143,41 @@ function LandingPage() {
       }
       setDashboardStats({ sold, active, bought, loading: false });
     }
-    if (currentUser) fetchDashboardStats();
-  }, [currentUser]);
+    if (authUser) fetchDashboardStats();
+  }, [authUser, dispatch]);
 
   // Fetch and score listings for recommendations
   useEffect(() => {
     async function fetchAndScoreListings() {
-      // Only run if user is logged in and has preferences
-      if (!currentUser || (interests.length === 0 && wantedItems.length === 0)) {
+      if (!authUser || (interests.length === 0 && wantedItems.length === 0)) {
         setRecommendedListings([]);
         return;
       }
-      // Fetch all active listings
       const q = query(collection(db, 'listings'), where('status', 'in', ['Active', '', null]));
       const querySnapshot = await getDocs(q);
       const allListings = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      // Score listings
-      const scored = allListings.map((listing: any) => {
-        let score = 0;
-        // Tag match
-        if (listing.tags && Array.isArray(listing.tags)) {
-          score += listing.tags.filter((tag: string) => interests.includes(tag)).length;
-        }
-        // Wanted item match (title/desc)
-        const text = ((listing.title || '') + ' ' + (listing.description || '')).toLowerCase();
-        wantedItems.forEach(item => {
-          if (text.includes(item.toLowerCase())) score += 2;
+      const scored = allListings
+        .filter((listing: any) => {
+          if (typeof listing.status === 'string' && listing.status.toLowerCase() === 'sold') return false;
+          if (listing.userId && authUser && listing.userId === authUser.uid) return false;
+          return true;
+        })
+        .map((listing: any) => {
+          let score = 0;
+          if (listing.tags && Array.isArray(listing.tags)) {
+            score += listing.tags.filter((tag: string) => interests.includes(tag)).length;
+          }
+          const text = ((listing.title || '') + ' ' + (listing.description || '')).toLowerCase();
+          wantedItems.forEach(item => {
+            if (text.includes(item.toLowerCase())) score += 2;
+          });
+          return { ...listing, _score: score };
         });
-        return { ...listing, _score: score };
-      });
-      // Sort and take top 6
       const top = scored.filter(l => l._score > 0).sort((a, b) => b._score - a._score).slice(0, 6);
       setRecommendedListings(top);
     }
     fetchAndScoreListings();
-  }, [currentUser, interests, wantedItems]);
+  }, [authUser, interests, wantedItems]);
 
   useEffect(() => {
     if (!gridRef.current) return;
@@ -183,11 +194,13 @@ function LandingPage() {
     return () => observer.disconnect();
   }, [hasAnimated]);
 
+  // Handlers
   const handleLogout = async () => {
     try {
       await logout();
       setShowLogoutPopup(true);
       setTimeout(() => setShowLogoutPopup(false), 2000);
+      dispatch(logoutUser());
       navigate('/');
     } catch (error) {
       console.error('Failed to log out:', error);
@@ -196,66 +209,86 @@ function LandingPage() {
 
   const handleProfileClick = () => {
     if (showDropdown) {
-      setDropdownClosing(true);
+      dispatch(setDropdownClosing(true));
       setTimeout(() => {
-        setShowDropdown(false);
-        setDropdownClosing(false);
-      }, 320); // match CSS animation duration
+        dispatch(setShowDropdown(false));
+        dispatch(setDropdownClosing(false));
+      }, 320);
     } else {
-      setShowDropdown(true);
+      dispatch(setShowDropdown(true));
     }
   };
 
   const handleEditProfile = () => {
-    setShowDropdown(false);
-    setShowEditProfile(true);
+    dispatch(setShowDropdown(false));
+    setProfileSnapshot({
+      username,
+      email,
+      profilePicture,
+      interests: [...interests],
+      wantedItems: [...wantedItems],
+    });
+    dispatch(setShowEditProfile(true));
+  };
+
+  const handleCancelEditProfile = () => {
+    if (profileSnapshot) {
+      dispatch(setUser({
+        username: profileSnapshot.username,
+        email: profileSnapshot.email,
+        profilePicture: profileSnapshot.profilePicture,
+      }));
+      dispatch(setInterests([...profileSnapshot.interests]));
+      dispatch(setWantedItems([...profileSnapshot.wantedItems]));
+    }
+    dispatch(setShowEditProfile(false));
   };
 
   const handleAddWantedItem = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newWantedItem.trim() || wantedItems.includes(newWantedItem.trim()) || !currentUser) return;
+    if (!newWantedItem.trim() || wantedItems.includes(newWantedItem.trim()) || !authUser) return;
     const updated = [...wantedItems, newWantedItem.trim()];
-    setWantedItems(updated);
+    dispatch(setWantedItems(updated));
     setNewWantedItem('');
     try {
-      await updateDoc(doc(db, 'users', currentUser.uid), { wantedItems: updated });
-      setSuccess('Item added!');
-      setTimeout(() => setSuccess(null), 1500);
+      await updateDoc(doc(db, 'users', authUser.uid), { wantedItems: updated });
+      dispatch(setSuccess('Item added!'));
+      setTimeout(() => dispatch(setSuccess('')), 1500);
     } catch (err) {
-      setError('Failed to add item.');
-      setTimeout(() => setError(null), 2000);
+      dispatch(setError('Failed to add item.'));
+      setTimeout(() => dispatch(setError('')), 2000);
     }
   };
 
   const handleRemoveWantedItem = async (itemToRemove: string) => {
-    if (!currentUser) return;
+    if (!authUser) return;
     const updated = wantedItems.filter(item => item !== itemToRemove);
-    setWantedItems(updated);
+    dispatch(setWantedItems(updated));
     try {
-      await updateDoc(doc(db, 'users', currentUser.uid), { wantedItems: updated });
-      setSuccess('Item removed!');
-      setTimeout(() => setSuccess(null), 1500);
+      await updateDoc(doc(db, 'users', authUser.uid), { wantedItems: updated });
+      dispatch(setSuccess('Item removed!'));
+      setTimeout(() => dispatch(setSuccess('')), 1500);
     } catch (err) {
-      setError('Failed to remove item.');
-      setTimeout(() => setError(null), 2000);
+      dispatch(setError('Failed to remove item.'));
+      setTimeout(() => dispatch(setError('')), 2000);
     }
   };
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!currentUser) return;
+    if (!authUser) return;
     try {
       setIsLoading(true);
-      await updateProfile(currentUser, { displayName: username });
-      await updateDoc(doc(db, 'users', currentUser.uid), {
+      await updateProfile(authUser, { displayName: username });
+      await updateDoc(doc(db, 'users', authUser.uid), {
         interests,
         wantedItems
       });
-      setSuccess('Profile updated successfully!');
-      setTimeout(() => setSuccess(null), 3000);
+      dispatch(setSuccess('Profile updated successfully!'));
+      setTimeout(() => dispatch(setSuccess('')), 3000);
     } catch (error) {
-      setError('Failed to update profile. Please try again.');
-      setTimeout(() => setError(null), 3000);
+      dispatch(setError('Failed to update profile. Please try again.'));
+      setTimeout(() => dispatch(setError('')), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -263,19 +296,19 @@ function LandingPage() {
 
   const handleProfilePictureChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !currentUser) return;
+    if (!file || !authUser) return;
     try {
       setIsLoading(true);
-      const storageRef = ref(storage, `profile-pictures/${currentUser.uid}`);
+      const storageRef = ref(storage, `profile-pictures/${authUser.uid}`);
       await uploadBytes(storageRef, file);
       const downloadURL = await getDownloadURL(storageRef);
-      await updateProfile(currentUser, { photoURL: downloadURL });
-      setProfilePicture(downloadURL);
-      setSuccess('Profile picture updated!');
-      setTimeout(() => setSuccess(null), 3000);
+      await updateProfile(authUser, { photoURL: downloadURL });
+      dispatch(setUser({ profilePicture: downloadURL }));
+      dispatch(setSuccess('Profile picture updated!'));
+      setTimeout(() => dispatch(setSuccess('')), 3000);
     } catch (err) {
-      setError('Failed to update profile picture.');
-      setTimeout(() => setError(null), 3000);
+      dispatch(setError('Failed to update profile picture.'));
+      setTimeout(() => dispatch(setError('')), 3000);
     } finally {
       setIsLoading(false);
     }
@@ -284,6 +317,13 @@ function LandingPage() {
   const handleImgError = (e: React.SyntheticEvent<HTMLImageElement, Event>) => {
     e.currentTarget.src = './techtower.jpeg';
     e.currentTarget.alt = 'Tech Tower';
+  };
+
+  const handleToggleInterest = (tag: string) => {
+    const newInterests = interests.includes(tag)
+      ? interests.filter((t) => t !== tag)
+      : [...interests, tag];
+    dispatch(setInterests(newInterests));
   };
 
   return (
@@ -301,47 +341,23 @@ function LandingPage() {
           </div>
         </div>
       )}
-      <nav className="landing-nav glass-nav">
-        <div className="landing-nav-left">
-          <img src="./logo.png" alt="GT Logo" className="gt-logo" />
-          <h1 className="landing-title">GT Marketplace</h1>
-        </div>
-        <div className="landing-nav-center">
-          {currentUser && (
-            <div className="nav-links">
-              <span className="nav-link" onClick={() => navigate('/explore')}>Explore</span>
-              <span className={`nav-link${notifCount > 0 ? ' has-badge' : ''}`} onClick={() => navigate('/messages')}>
-                Messages
-                {notifCount > 0 && (
-                  <span className="notif-badge">{notifCount}</span>
-                )}
-              </span>
-              <span className="nav-link" onClick={() => navigate('/purchase-history')}>Purchase History</span>
-              <span className="nav-link" onClick={() => navigate('/my-listings')}>My Listings</span>
-            </div>
-          )}
-        </div>
-        <div className="landing-nav-right">
-          {currentUser ? (
-            <div className="user-section" onClick={handleProfileClick} style={{ position: 'relative' }}>
-              <img src={profilePicture || './default-avatar.png'} alt="Profile" className="profile-pic" />
-              <span className="username">{username}</span>
-              {(showDropdown || dropdownClosing) && (
-                <div className={`profile-dropdown${dropdownClosing ? ' closing' : ''}`}> 
-                  <button onClick={handleEditProfile}>Edit Profile</button>
-                  <button onClick={handleLogout}>Logout</button>
-                </div>
-              )}
-            </div>
-          ) : (
-            <button className="landing-nav-button" onClick={() => navigate('/login')}>Login</button>
-          )}
-        </div>
-      </nav>
+      <PersistentNav
+        handleProfileClick={handleProfileClick}
+        handleEditProfile={handleEditProfile}
+        handleLogout={handleLogout}
+      />
       
       {showEditProfile && (
         <div className="edit-profile-modal">
-          <div className="edit-profile-content">
+          <div className="edit-profile-content" style={{ position: 'relative' }}>
+            <button
+              className="edit-profile-close-btn"
+              style={{ position: 'absolute', top: 0, left: 0, zIndex: 10, background: 'none', border: 'none', fontSize: '2rem', color: '#003057', cursor: 'pointer' }}
+              aria-label="Close"
+              onClick={handleCancelEditProfile}
+            >
+              &times;
+            </button>
             <h2>Edit Profile</h2>
             <div className="edit-profile-picture-container">
               <img
@@ -376,7 +392,7 @@ function LandingPage() {
                   type="text"
                   id="username"
                   value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  onChange={(e) => dispatch(setUser({ username: e.target.value }))}
                   required
                 />
               </div>
@@ -398,13 +414,7 @@ function LandingPage() {
                       key={tag}
                       type="button"
                       className={`tag-btn${interests.includes(tag) ? ' selected' : ''}`}
-                      onClick={() => {
-                        setInterests((prev) =>
-                          prev.includes(tag)
-                            ? prev.filter((t) => t !== tag)
-                            : [...prev, tag]
-                        );
-                      }}
+                      onClick={() => handleToggleInterest(tag)}
                     >
                       {tag}
                     </button>
@@ -442,7 +452,7 @@ function LandingPage() {
               {success && <p className="success-message">{success}</p>}
               <div className="button-group">
                 <button type="submit" className="save-button" disabled={isLoading}>Save Changes</button>
-                <button type="button" className="cancel-button" onClick={() => setShowEditProfile(false)}>
+                <button type="button" className="cancel-button" onClick={handleCancelEditProfile}>
                   Cancel
                 </button>
               </div>
@@ -461,14 +471,14 @@ function LandingPage() {
           <p className="hero-tagline">The ultimate campus marketplace for Yellow Jackets. Buy, sell, and connect with your Georgia Tech community!</p>
           <div className="hero-buttons">
             <button className="cta-button" onClick={() => {
-              if (currentUser) {
+              if (authUser) {
                 navigate('/explore');
               } else {
                 setShowLoginPrompt(true);
               }
             }}>Start Exploring</button>
             <button className="new-listing-button" onClick={() => {
-              if (currentUser) {
+              if (authUser) {
                 navigate('/new-listing');
               } else {
                 setShowLoginPrompt(true);
@@ -509,7 +519,7 @@ function LandingPage() {
         </section>
       </div>
 
-      {currentUser && (
+      {authUser && (
         <div
           className="dashboard-activity-container"
           style={{
