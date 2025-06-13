@@ -233,6 +233,7 @@ function LandingPage() {
 
   const handleCancelEditProfile = () => {
     if (profileSnapshot) {
+      // Restore all user data from snapshot
       dispatch(setUser({
         username: profileSnapshot.username,
         email: profileSnapshot.email,
@@ -240,6 +241,8 @@ function LandingPage() {
       }));
       dispatch(setInterests([...profileSnapshot.interests]));
       dispatch(setWantedItems([...profileSnapshot.wantedItems]));
+      // Clear the snapshot
+      setProfileSnapshot(null);
     }
     dispatch(setShowEditProfile(false));
   };
@@ -279,11 +282,26 @@ function LandingPage() {
     if (!authUser) return;
     try {
       setIsLoading(true);
+      // Update Firebase profile
       await updateProfile(authUser, { displayName: username });
+      // Update Firestore document with all user data
       await updateDoc(doc(db, 'users', authUser.uid), {
+        username,
         interests,
-        wantedItems
+        wantedItems,
+        profilePicture
       });
+      // Update Redux store with all user data
+      dispatch(setUser({
+        username,
+        email,
+        profilePicture,
+      }));
+      dispatch(setInterests([...interests]));
+      dispatch(setWantedItems([...wantedItems]));
+      // Clear the snapshot since changes are saved
+      setProfileSnapshot(null);
+      dispatch(setShowEditProfile(false));
       dispatch(setSuccess('Profile updated successfully!'));
       setTimeout(() => dispatch(setSuccess('')), 3000);
     } catch (error) {
@@ -339,6 +357,11 @@ function LandingPage() {
             <p className="login-prompt-message">You must log in before using this feature.</p>
             <button className="login-prompt-login-btn" onClick={() => navigate('/login')}>Log In</button>
           </div>
+        </div>
+      )}
+      {success && (
+        <div className="success-message">
+          {success}
         </div>
       )}
       <PersistentNav
