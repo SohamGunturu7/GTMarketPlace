@@ -184,10 +184,22 @@ export default function RecentActivityFeed() {
                       <span className="seller-name">by {item.sellerUsername}</span>
                     )}
                     {soldQuantity && item.status !== 'sold' && (
-                      <span className="sold-quantity">Sold Quantity: {soldQuantity}</span>
+                      <span className="sold-quantity">
+                        <span className="quantity-badge" title="Quantity Sold">{soldQuantity}</span>
+                        {typeof item.quantity === 'number' && item.quantity > 0 ? (
+                          <span style={{ fontSize: '0.98em', color: '#a0aec0', fontWeight: 500, marginLeft: 6 }}>
+                            ({item.quantity} left)
+                          </span>
+                        ) : (
+                          <span className="sold-out-badge" title="Sold Out">Sold Out</span>
+                        )}
+                      </span>
                     )}
                     {boughtQuantity && item.status === 'bought' && (
-                      <span className="bought-quantity">Quantity {boughtQuantity}</span>
+                      <span className="bought-quantity">
+                        <span style={{ fontSize: '0.98em', color: '#a0aec0', fontWeight: 500, marginRight: 4 }}>Qty:</span>
+                        <span className="quantity-badge">{boughtQuantity}</span>
+                      </span>
                     )}
                   </div>
                 </div>

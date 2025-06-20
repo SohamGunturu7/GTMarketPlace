@@ -4,6 +4,7 @@ import { doc, getDoc, getDocs, collection, query, where } from 'firebase/firesto
 import { db } from '../firebase/config';
 import './MyListingsPage.css';
 import PersistentNav from '../components/PersistentNav';
+import './RecentActivityFeed.css';
 
 export default function PurchaseHistoryPage() {
   const { currentUser } = useAuth();
@@ -62,7 +63,12 @@ export default function PurchaseHistoryPage() {
                 <span className="my-listing-price">${purchase.price}</span>
               </div>
               <div className="my-listing-details">
-                <h4>{purchase.title}</h4>
+                <h4 style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  {purchase.title}
+                  {purchase.quantity > 1 && (
+                    <span className="quantity-badge" title="Quantity Purchased">{purchase.quantity}</span>
+                  )}
+                </h4>
                 <div className="my-listing-meta">
                   <span>Purchased: {new Date(purchase.date).toLocaleDateString()}</span>
                   <span className="my-listing-date">Seller: {sellerMap[purchase.sellerId] || purchase.sellerId}</span>

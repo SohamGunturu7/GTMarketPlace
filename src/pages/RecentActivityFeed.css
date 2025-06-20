@@ -172,8 +172,41 @@
 .recent-activity-icon-overlay {
   display: none;
 }
-.bought-quantity, .sold-quantity {
+.bought-quantity {
   margin-left: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.quantity-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #bfa14a 0%, #e6c97a 100%);
+  color: #232a34;
+  font-size: 1.05rem;
+  font-weight: 800;
+  border-radius: 9999px;
+  padding: 0.18em 1.1em;
+  margin-left: 0.3em;
+  box-shadow: 0 1px 4px rgba(191,161,74,0.10);
+  letter-spacing: 0.5px;
+  border: 1.5px solid #fffbe6;
+}
+.sold-quantity {
+  margin-left: 1.5rem;
+}
+.sold-out-badge {
+  display: inline-block;
+  background: linear-gradient(90deg, #e53e3e 0%, #ffb347 100%);
+  color: #fff;
+  font-size: 1.01rem;
+  font-weight: 800;
+  border-radius: 9999px;
+  padding: 0.18em 1.1em;
+  margin-left: 0.5em;
+  box-shadow: 0 1px 4px rgba(229,62,62,0.10);
+  letter-spacing: 0.5px;
+  border: 1.5px solid #fffbe6;
+  text-transform: uppercase;
 }
 @media (max-width: 900px) {
   .recent-activity-section {
