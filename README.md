@@ -61,16 +61,7 @@ The app will be available at `http://localhost:5173` by default.
 
 ## Folder Structure
 
-- `src/` - React frontend source code
+- `src/` - React frontend source code and also firebase logic
 - `ai_price_suggestion/` - Python ML model for price suggestions
 - `public/` - Static assets and images
 - `server.js` - Node.js backend server (if used)
-
-## Contributing
-Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
-
-## License
-MIT
-
-## Contact
-For questions or support, contact Soham Gunturu or open an issue on GitHub.
