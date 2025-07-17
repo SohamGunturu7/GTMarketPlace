@@ -1,54 +1,76 @@
-# React + TypeScript + Vite
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+# GTMarketPlace
 
-Currently, two official plugins are available:
+GTMarketPlace is a web application designed for the Georgia Tech community to buy, sell, and trade items securely within the campus network. The platform provides a safe and user-friendly environment for students, faculty, and staff to connect and manage listings, messages, and transactions.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## Features
 
-## Expanding the ESLint configuration
+- **User Authentication**: Secure login with OAuth (Google) and password reset functionality.
+- **Listings**: Create, browse, and manage item listings with images and descriptions.
+- **Messaging**: In-app messaging system for buyers and sellers to communicate.
+- **Profile Management**: View and edit user profiles, purchase history, and recent activity.
+- **AI Price Suggestion**: Get price suggestions for listings using a machine learning model.
+- **Campus Map**: Visualize item locations and meet-up spots on a campus map.
+- **Responsive UI**: Modern, mobile-friendly interface built with React and TypeScript.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Tech Stack
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- **Frontend**: React, TypeScript, Vite
+- **Backend**: Node.js (Express), Python (AI price suggestion to be implemented with more data)
+- **Authentication**: Firebase Auth, Google OAuth
+- **Database**: Firebase Firestore
+- **AI/ML**: Python (see `ai_price_suggestion/`)
+
+## Getting Started
+
+### Prerequisites
+- Node.js (v18+ recommended)
+- npm or yarn
+- Python 3.10+ (for AI price suggestion)
+
+### Installation
+1. Clone the repository:
+   ```sh
+   git clone https://github.com/SohamGunturu7/GTMarketPlace.git
+   cd GTMarketPlace
+   ```
+2. Install frontend dependencies:
+   ```sh
+   npm install
+   # or
+   yarn install
+   ```
+3. Set up Firebase:
+   - Add your Firebase config to `src/firebase/config.ts`.
+   - Place your Google OAuth client secret in the project root as `client_secret_...json`.
+4. (Optional) Set up the AI price suggestion service:
+   - Navigate to `ai_price_suggestion/` and install Python dependencies:
+     ```sh
+     pip install -r requirements.txt
+     ```
+   - Run the Python service as needed.
+
+### Running the App
+Start the development server:
+```sh
+npm run dev
+# or
+
 ```
+The app will be available at `http://localhost:5173` by default.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+## Folder Structure
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+- `src/` - React frontend source code
+- `ai_price_suggestion/` - Python ML model for price suggestions
+- `public/` - Static assets and images
+- `server.js` - Node.js backend server (if used)
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## Contributing
+Pull requests are welcome! For major changes, please open an issue first to discuss what you would like to change.
+
+## License
+MIT
+
+## Contact
+For questions or support, contact Soham Gunturu or open an issue on GitHub.
