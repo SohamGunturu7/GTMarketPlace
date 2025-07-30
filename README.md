@@ -1,5 +1,5 @@
 
-# GTMarketPlace
+# GTMarketPlace (https:gtmarketplace.org)
 
 GTMarketPlace is a web application designed for the Georgia Tech community to buy, sell, and trade items securely within the campus network. The platform provides a safe and user-friendly environment for students, faculty, and staff to connect and manage listings, messages, and transactions.
 
